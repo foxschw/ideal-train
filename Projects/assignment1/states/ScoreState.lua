@@ -15,6 +15,7 @@ ScoreState = Class{__includes = BaseState}
     from the play state so we know what to render to the State.
 ]]
 
+-- load medal image assets into variables
 local bronze = love.graphics.newImage('bronze.png')
 local silver = love.graphics.newImage('silver.png')
 local gold = love.graphics.newImage('gold.png')
@@ -38,7 +39,7 @@ function ScoreState:render()
     love.graphics.setFont(mediumFont)
     love.graphics.printf('Score: ' .. tostring(self.score), 0, 100, VIRTUAL_WIDTH, 'center')
 
-
+    -- show different medals when different scores are achieved
     if self.score <= 1 then
         love.graphics.draw(bronze, VIRTUAL_WIDTH / 2, 215, 0, 0.05, 0.05, bronze:getWidth() / 2, bronze:getHeight() / 2)
     elseif self.score <= 3 then
