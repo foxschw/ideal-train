@@ -62,6 +62,9 @@ local GROUND_SCROLL_SPEED = 60
 
 local BACKGROUND_LOOPING_POINT = 413
 
+-- initialize a variable for pausing the game
+local isPaused = false
+
 function love.load()
     -- initialize our nearest-neighbor filter
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -92,7 +95,7 @@ function love.load()
 
     -- kick off music
     sounds['music']:setLooping(true)
-    sounds['music']:play()
+    -- sounds['music']:play()
 
     -- initialize our virtual resolution
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
@@ -125,6 +128,11 @@ function love.keypressed(key)
     -- add to our table of keys pressed this frame
     love.keyboard.keysPressed[key] = true
 
+    -- change paused state if letter p key is pressed
+    if key == 'p' then
+        isPaused = not isPaused
+    end
+
     if key == 'escape' then
         love.event.quit()
     end
@@ -154,14 +162,17 @@ function love.mouse.wasPressed(button)
 end
 
 function love.update(dt)
-    -- scroll our background and ground, looping back to 0 after a certain amount
-    backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
-    groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
+    -- update the game only if not in a paused state
+    if not isPaused then
+        -- scroll our background and ground, looping back to 0 after a certain amount
+        backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
+        groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
 
-    gStateMachine:update(dt)
+        gStateMachine:update(dt)
 
-    love.keyboard.keysPressed = {}
-    love.mouse.buttonsPressed = {}
+        love.keyboard.keysPressed = {}
+        love.mouse.buttonsPressed = {}
+    end
 end
 
 function love.draw()

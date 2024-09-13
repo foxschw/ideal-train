@@ -131,4 +131,8 @@ end
 function PlayState:exit()
     -- stop scrolling for the death/score screen
     scrolling = false
+
+    if love.keyboard.wasPressed('p') then
+        scrolling = not scrolling
+    end
 end

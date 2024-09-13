@@ -50,7 +50,8 @@ function Bird:update(dt)
         sounds['jump']:play()
     end
 
-    self.y = self.y + self.dy
+    self.y = math.max(0, self.y + self.dy)
+
 end
 
 function Bird:render()
