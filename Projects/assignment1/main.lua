@@ -62,8 +62,8 @@ local GROUND_SCROLL_SPEED = 60
 
 local BACKGROUND_LOOPING_POINT = 413
 
--- initialize a variable for pausing the game
-local isPaused = false
+-- initialize a global variable for pausing the game
+IS_PAUSED = false
 
 function love.load()
     -- initialize our nearest-neighbor filter
@@ -95,7 +95,7 @@ function love.load()
 
     -- kick off music
     sounds['music']:setLooping(true)
-    -- sounds['music']:play()
+    sounds['music']:play()
 
     -- initialize our virtual resolution
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
@@ -130,7 +130,7 @@ function love.keypressed(key)
 
     -- change paused state if letter p key is pressed
     if key == 'p' then
-        isPaused = not isPaused
+        IS_PAUSED = not IS_PAUSED
     end
 
     if key == 'escape' then
@@ -163,7 +163,7 @@ end
 
 function love.update(dt)
     -- update the game only if not in a paused state
-    if not isPaused then
+    if not IS_PAUSED then
         -- scroll our background and ground, looping back to 0 after a certain amount
         backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
         groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
@@ -181,6 +181,14 @@ function love.draw()
     love.graphics.draw(background, -backgroundScroll, 0)
     gStateMachine:render()
     love.graphics.draw(ground, -groundScroll, VIRTUAL_HEIGHT - 16)
+    
+    -- let user know if game is paused
+    if IS_PAUSED then
+        love.graphics.setFont(hugeFont)
+        love.graphics.printf('PAUSED!', 0, 8, VIRTUAL_WIDTH, 'center')
+        love.graphics.setFont(mediumFont)
+        love.graphics.printf('Press P to resume', -8, 8, VIRTUAL_WIDTH, 'right')
+    end
 
     push:finish()
 end

@@ -113,6 +113,11 @@ function PlayState:render()
 
     love.graphics.setFont(flappyFont)
     love.graphics.print('Score: ' .. tostring(self.score), 8, 8)
+    
+    if not IS_PAUSED then
+        love.graphics.setFont(mediumFont)
+        love.graphics.printf('Press P to pause', -8, 8, VIRTUAL_WIDTH, 'right')
+    end
 
     self.bird:render()
 end
@@ -131,8 +136,4 @@ end
 function PlayState:exit()
     -- stop scrolling for the death/score screen
     scrolling = false
-
-    if love.keyboard.wasPressed('p') then
-        scrolling = not scrolling
-    end
 end

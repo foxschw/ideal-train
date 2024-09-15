@@ -40,12 +40,12 @@ function ScoreState:render()
     love.graphics.printf('Score: ' .. tostring(self.score), 0, 100, VIRTUAL_WIDTH, 'center')
 
     -- show different medals when different scores are achieved
-    if self.score <= 1 then
-        love.graphics.draw(bronze, VIRTUAL_WIDTH / 2, 215, 0, 0.05, 0.05, bronze:getWidth() / 2, bronze:getHeight() / 2)
-    elseif self.score <= 3 then
-        love.graphics.draw(silver, VIRTUAL_WIDTH / 2, 215, 0, 0.2, 0.2, silver:getWidth() / 2, silver:getHeight() / 2)
+    if self.score <= 4 then
+        love.graphics.draw(bronze, VIRTUAL_WIDTH / 2, 215, 0, .35, .35, bronze:getWidth() / 2, bronze:getHeight() / 2)
+    elseif self.score <= 9 then
+        love.graphics.draw(silver, VIRTUAL_WIDTH / 2, 215, 0, 0.35, 0.35, silver:getWidth() / 2, silver:getHeight() / 2)
     else 
-        love.graphics.draw(gold, VIRTUAL_WIDTH / 2, 215, 0, 0.075, 0.075, gold:getWidth() / 2, gold:getHeight() / 2)
+        love.graphics.draw(gold, VIRTUAL_WIDTH / 2, 215, 0, .35, .35, gold:getWidth() / 2, gold:getHeight() / 2)
     end
 
 
