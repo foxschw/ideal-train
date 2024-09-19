@@ -128,7 +128,7 @@ end
 
 -- retrieve the sprite that has the plus symbol next to the ball
 function GenerateQuadPowerup(atlas)
-    local x = 144
+    local x = 128
     local y = 192
     local quad = love.graphics.newQuad(x, y, 16, 16, atlas:getDimensions())
 

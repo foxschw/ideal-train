@@ -2,7 +2,7 @@ Powerup = Class{}
 
 -- sprite is located at x=144, y=192
 
-function Powerup:init(skin)
+function Powerup:init()
     -- simple positional and dimensional variables
     self.width = 16
     self.height = 16
@@ -13,13 +13,9 @@ function Powerup:init(skin)
     -- y is placed above the screen
     self.y = -18
 
-    -- this variable is for keeping track of velocity on the Y axis
-    self.dy = 0
+    -- this variable is speed of falling powerup
+    self.dy = math.random(10, 200)
 
-    -- this will effectively be the color of our ball, and we will index
-    -- our table of Quads relating to the global block texture using this
-    self.skin = skin
-    -- maybe not needed?
 end
 
 --[[
@@ -41,4 +37,13 @@ function Powerup:collides(target)
 
     -- if the above aren't true, they're overlapping
     return true
+end
+
+-- apply velocity downward when called
+function Powerup:update(dt)
+    self.y = self.y + self.dy * dt
+end
+
+function Powerup:render()
+    love.graphics.draw(gTextures['main'], gFrames['powerups'], self.x, self.y)
 end
