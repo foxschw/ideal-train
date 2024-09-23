@@ -37,7 +37,7 @@ end
 
 function ServeState:update(dt)
     -- have the ball track the player
-    self.paddle:update(dt)
+    self.paddle:update(dt, self.firstServe)
     -- iterate over table to determine ball position
     for i, ball in ipairs(self.balls) do
         ball.x = self.paddle.x + (self.paddle.width / 2) - 4
@@ -55,7 +55,7 @@ function ServeState:update(dt)
             -- pass balls table to play state
             balls = self.balls,
             level = self.level,
-            recoverPoints = self.recoverPoints
+            recoverPoints = self.recoverPoints,
         })
     end
 

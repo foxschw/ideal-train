@@ -37,7 +37,7 @@ function StartState:update(dt)
 
         if highlighted == 1 then
             gStateMachine:change('paddle-select', {
-                highScores = self.highScores
+                highScores = self.highScores,
             })
         else
             gStateMachine:change('high-scores', {

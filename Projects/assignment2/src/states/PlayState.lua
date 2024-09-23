@@ -33,6 +33,10 @@ function PlayState:enter(params)
     -- this ultimately will trigger powerups
     self.hitCounter = 0
 
+    -- initialize a counter that increments alongside the score, but starts at zero with each new serve
+    -- the paddle size will increment after a certain amount of points scored after each serve
+    self.pointCounter = 0
+
     self.recoverPoints = 5000
 
     -- initialize an empty powerup table to hold active power-ups
@@ -101,6 +105,19 @@ function PlayState:update(dt)
 
                 -- add to score
                 self.score = self.score + (brick.tier * 200 + brick.color * 25)
+                -- add to pointCounter
+                self.pointCounter = self.pointCounter + (brick.tier * 200 + brick.color * 25)
+
+                -- set the pointCounter threshold for increasing paddle size on the condition that
+                -- the paddle size isn't at its maximum
+                if self.pointCounter > 1000 and self.paddle.size < 4 then
+                    -- increment the paddle size to get the right quad
+                    self.paddle.size = self.paddle.size + 1
+                    -- update the paddle width to accomodate logic that relies on paddle width
+                    self.paddle.width = self.paddle.width + 32
+                    -- reset the counter
+                    self.pointCounter = 0
+                end
 
                 -- increment counter if brick is hit
                 self.hitCounter = self.hitCounter + 1
@@ -175,7 +192,7 @@ function PlayState:update(dt)
                 -- top edge if no X collisions, always check
                 elseif ball.y < brick.y then
                     
-                    -- flip y velocity and reset position outside of brick
+                    -- flip y velocity and sreset position outside of brick
                     ball.dy = ball.dy
                     ball.y = brick.y - 8
                 
@@ -209,9 +226,9 @@ function PlayState:update(dt)
             for i = 1, 2 do
                 local newBall = Ball()
                 newBall.skin = math.random(7)
-                --start at paddle
-                newBall.x = self.paddle.x
-                newBall.y = self.paddle.y
+                --start at paddle center (same logic from ServeState)
+                newBall.x = self.paddle.x + (self.paddle.width / 2) - 4
+                newBall.y = self.paddle.y - 8
                 -- random velocity
                 newBall.dx = math.random(-200, 200)
                 newBall.dy = math.random(-50, -60)
@@ -234,26 +251,36 @@ function PlayState:update(dt)
 
     -- for each ball
     for i, ball in ipairs(self.balls) do
-    -- if ball goes below bounds, revert to serve state and decrease health
+    -- if ball goes below bounds, remove it from the ball table
         if ball.y >= VIRTUAL_HEIGHT then
-            self.health = self.health - 1
-            gSounds['hurt']:play()
+            table.remove(self.balls, i)
+            -- if all balls have been removed, go through logic for losing
+            if #self.balls == 0 then
+                self.health = self.health - 1
+                gSounds['hurt']:play()
 
-            if self.health == 0 then
-                gStateMachine:change('game-over', {
-                    score = self.score,
-                    highScores = self.highScores
-                })
-            else
-                gStateMachine:change('serve', {
-                    paddle = self.paddle,
-                    bricks = self.bricks,
-                    health = self.health,
-                    score = self.score,
-                    highScores = self.highScores,
-                    level = self.level,
-                    recoverPoints = self.recoverPoints
-                })
+                -- logic for decreasing paddle size
+                if self.paddle.size > 1 then
+                    self.paddle.size = self.paddle.size - 1
+                    self.paddle.width = self.paddle.width - 32
+                end
+
+                if self.health == 0 then
+                    gStateMachine:change('game-over', {
+                        score = self.score,
+                        highScores = self.highScores
+                    })
+                else
+                    gStateMachine:change('serve', {
+                        paddle = self.paddle,
+                        bricks = self.bricks,
+                        health = self.health,
+                        score = self.score,
+                        highScores = self.highScores,
+                        level = self.level,
+                        recoverPoints = self.recoverPoints,
+                    })
+                end
             end
         end
     end
@@ -280,6 +307,8 @@ function PlayState:render()
     end
 
     self.paddle:render()
+    
+    -- render all balls that are in play (in the ball table)
     for i, ball in ipairs(self.balls) do
         ball:render()
     end
