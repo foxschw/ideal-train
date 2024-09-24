@@ -29,9 +29,15 @@ function PlayState:enter(params)
     self.balls = params.balls
     self.level = params.level
 
+    -- passed in from serve state, should always start as false
+    self.hasKey = params.hasKey
+
     -- initialize counter variable for balls hitting bricks
     -- this ultimately will trigger powerups
     self.hitCounter = 0
+    
+    -- set an initial random threshold between 7 and 14 hits to determine when to drop a powerup
+    self.randomThreshold = math.random(5, 12)
 
     -- initialize a counter that increments alongside the score, but starts at zero with each new serve
     -- the paddle size will increment after a certain amount of points scored after each serve
@@ -48,6 +54,17 @@ function PlayState:enter(params)
         ball.dy = math.random(-50, -60)
     end
 
+end
+
+-- helper function to check if there are any locked bricks in the current level
+-- key powerups won't be dropped if this returns false
+function PlayState:hasLockedBricks()
+    for k, brick in pairs(self.bricks) do
+        if brick.locked then
+            return true
+        end
+    end
+    return false
 end
 
 
@@ -103,11 +120,16 @@ function PlayState:update(dt)
             -- only check collision if we're in play
             if brick.inPlay and ball:collides(brick) then
 
-                -- add to score
-                self.score = self.score + (brick.tier * 200 + brick.color * 25)
-                -- add to pointCounter
-                self.pointCounter = self.pointCounter + (brick.tier * 200 + brick.color * 25)
-
+                -- only score for unlocked bricks
+                if not brick.locked then
+                    -- add to score
+                    self.score = self.score + (brick.tier * 200 + brick.color * 25)
+                    self.pointCounter = self.pointCounter + (brick.tier * 200 + brick.color * 25)
+                -- if a locked brick is hit when a key is in play, add a big score
+                elseif brick.locked and self.hasKey then
+                    self.score = self.score + 10000
+                    self.pointCounter = self.pointCounter + 10000
+                end
                 -- set the pointCounter threshold for increasing paddle size on the condition that
                 -- the paddle size isn't at its maximum
                 if self.pointCounter > 1000 and self.paddle.size < 4 then
@@ -121,19 +143,31 @@ function PlayState:update(dt)
 
                 -- increment counter if brick is hit
                 self.hitCounter = self.hitCounter + 1
-                print("Hit brick! hitCounter: " .. tostring(self.hitCounter))
-                if self.hitCounter >= 1 then
-                    print("Creating power-up!")
-                    --create a powerup instance
-                    local newPowerup = Powerup()
-                    --insert it into the table
+                -- threshold of hit bricks for generating powerups
+                if self.hitCounter >= self.randomThreshold then
+
+                    local powerupType = nil
+                    -- 20% chance to drop a key power-up, but only if there are locked bricks
+                    if math.random(1, 5) == 1 and self:hasLockedBricks() then
+                        -- Key power-up
+                        powerupType = 2
+                    else
+                        -- Ball power-up
+                        powerupType = 1
+                    end
+
+                    -- Create a powerup of the specified type and add to table
+                    local newPowerup = Powerup(powerupType)
                     table.insert(self.powerups, newPowerup)
                     -- reset counter
                     self.hitCounter = 0
+                    -- generate a new threshold for dropping powerups
+                    self.randomThreshold = math.random(5, 12)
                 end
 
                 -- trigger the brick's hit function, which removes it from play
-                brick:hit()
+                -- additionally pass in the hasKey variable
+                brick:hit(self.hasKey)
 
                 
 
@@ -221,30 +255,35 @@ function PlayState:update(dt)
 
         -- Check if it collides with the paddle
         if powerup:collides(self.paddle) then
-            print("Power-up collected!")
             
-            for i = 1, 2 do
-                local newBall = Ball()
-                newBall.skin = math.random(7)
-                --start at paddle center (same logic from ServeState)
-                newBall.x = self.paddle.x + (self.paddle.width / 2) - 4
-                newBall.y = self.paddle.y - 8
-                -- random velocity
-                newBall.dx = math.random(-200, 200)
-                newBall.dy = math.random(-50, -60)
-                -- insert to table
-                table.insert(self.balls, newBall)
+            if powerup.type == 1 then
+                -- ball powerup: create 2 balls
+                for i = 1, 2 do
+                    local newBall = Ball()
+                    newBall.skin = math.random(7)
+                    --start at paddle center (same logic from ServeState)
+                    newBall.x = self.paddle.x + (self.paddle.width / 2) - 4
+                    newBall.y = self.paddle.y - 8
+                    -- random velocity
+                    newBall.dx = math.random(-200, 200)
+                    newBall.dy = math.random(-50, -60)
+                    -- insert to table
+                    table.insert(self.balls, newBall)
+                end
+            elseif powerup.type == 2 then
+                -- key power-up: players hasKey variable switches to true
+                self.hasKey = true
             end
+            
 
-            -- Remove the power-up once collected
+            -- remove the power-up once collected
             table.remove(self.powerups, i)
         end
 
-        -- Remove the powerup from table in reverse order if it goes off-screen
+        -- remove the powerup from table in reverse order if it goes off-screen
         for i = #self.powerups, 1, -1 do
             if self.powerups[i].y > VIRTUAL_HEIGHT then
                 table.remove(self.powerups, i)
-                print("Power-up missed and removed!")
             end
         end
     end
