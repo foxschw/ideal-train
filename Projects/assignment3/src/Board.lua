@@ -22,66 +22,70 @@ function Board:init(x, y, level)
     self:initializeTiles()
 end
 
--- helper function to create a table that can be used for tile generation that makes lower numbers more probable
+-- helper function to create a table that can be used for tile generation that makes lower variety numbers more probable
 function Board:getWeightedVariety(level)
     --create an empty table for varieties
     local varieties = {}
     --iterate over level
     for i = 1, math.min(6, level) do
         -- lower numbers get added more times to the table than higher numbers which will make them more probable
-        for j = 1, 10 - i do
+        for j = 1, 14 - i * 2 do
             table.insert(varieties, i)
         end
     end
+    -- return a variety at random
     return varieties[math.random(#varieties)]
 end
 
+-- helper function to see if matches are possible with a baord that has been initialized
+-- if no matches, board will re-initialize
 function Board:checkPossibilities()
     -- track if a match has been found
     local possibleMatchFound = false
 
-    -- loop through all tiles except the last row and column
+    -- HORIZONTAL SWAP
+    -- loop through all tiles
     for y = 1, 8 do
-        for x = 1, 8 do
-            -- perform a horizontal swap and check
-            if x < 8 then
-                -- Ssap tiles horizontally
-                self.tiles[y][x], self.tiles[y][x + 1] = self.tiles[y][x + 1], self.tiles[y][x]
-                
-                -- check for matches with swapped tiles
-                local matches = self:calculateMatches()
-                
-                -- swap the tiles back
-                self.tiles[y][x], self.tiles[y][x + 1] = self.tiles[y][x + 1], self.tiles[y][x]
-                
-                -- if any match is found, set the flag to true
-                if matches then
-                    possibleMatchFound = true
-                end
+        -- check horizontal swaps to the right, don't bother with the last column
+        for x = 1, 7 do
+            -- swap tiles horizontally
+            self.tiles[y][x], self.tiles[y][x + 1] = self.tiles[y][x + 1], self.tiles[y][x]
+            
+            -- check for matches with swapped tiles
+            local matches = self:calculateMatches()
+            
+            -- swap the tiles back
+            self.tiles[y][x], self.tiles[y][x + 1] = self.tiles[y][x + 1], self.tiles[y][x]
+            
+            -- if any match is found, set the flag to true
+            if matches then
+                possibleMatchFound = true
             end
-
-            -- perform a vertical swap and check
-            if y < 8 then
-                -- swap tiles vertically
-                self.tiles[y][x], self.tiles[y + 1][x] = self.tiles[y + 1][x], self.tiles[y][x]
-                
-                -- check for matches with swapped tiles
-                local matches = self:calculateMatches()
-                
-                -- swap the tiles back
-                self.tiles[y][x], self.tiles[y + 1][x] = self.tiles[y + 1][x], self.tiles[y][x]
-                
-                -- if any match is found, set the flag to true
-                if matches then
-                    possibleMatchFound = true
-                end
+        end
+    end
+            
+    -- VERTICAL SWAP
+    -- loop through all tiles, don't bother with last row
+    for y = 1, 7 do
+        for x = 1, 8 do
+            -- swap tiles vertically
+            self.tiles[y][x], self.tiles[y + 1][x] = self.tiles[y + 1][x], self.tiles[y][x]
+            
+            -- check for matches with swapped tiles
+            local matches = self:calculateMatches()
+            
+            -- swap the tiles back
+            self.tiles[y][x], self.tiles[y + 1][x] = self.tiles[y + 1][x], self.tiles[y][x]
+            
+            -- if any match is found, set the flag to true
+            if matches then
+                possibleMatchFound = true
             end
         end
     end
 
     -- if no possible match was found, reinitialize the board
     if not possibleMatchFound then
-        print("No possible matches. Reinitializing board.")
         self:initializeTiles()
     end
 end
@@ -369,17 +373,18 @@ function Board:getFallingTiles()
             end
         end
     end
+    -- make sure there are still new match possibilities after new tiles have been added
     self:checkPossibilities()
 
     return tweens
 end
 
--- including an update function for making particle systems
+-- include an update function for making particle systems
 function Board:update(dt)
-    -- Loop through all the tiles on the board and update them
+    -- loop through all the tiles on the board and update them
     for y = 1, #self.tiles do
         for x = 1, #self.tiles[1] do
-            -- Update each tile (this will update the particle system for shiny tiles)
+            -- update each tile (this will update the particle system for shiny tiles)
             self.tiles[y][x]:update(dt)
         end
     end

@@ -28,10 +28,10 @@ function Tile:init(x, y, color, variety, shiny)
     self.variety = variety
     self.isShiny = shiny
 
-    -- Use the particle image (from Breakout)
+    -- use the particle image (from Breakout)
     local particleImage = love.graphics.newImage('graphics/particle.png')
 
-    -- Initialize the particle system
+    -- initialize the particle system
     self.particleSystem = love.graphics.newParticleSystem(particleImage, 100)
     self.particleSystem:setParticleLifetime(0.5, 1.5)
     self.particleSystem:setEmissionRate(3)
@@ -66,7 +66,7 @@ function Tile:render(x, y)
     love.graphics.draw(gTextures['main'], gFrames['tiles'][self.color][self.variety],
         self.x + x, self.y + y)
     if self.isShiny then
-        -- Draw the particle system
+        -- draw the particle system for shiny tiles
         love.graphics.draw(self.particleSystem, x, y)
     end
 end
