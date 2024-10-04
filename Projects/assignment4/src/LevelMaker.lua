@@ -213,7 +213,6 @@ function LevelMaker.generate(width, height)
                                         -- gem has its own function to add to the player's score
                                         onConsume = function(player, object)
                                             gSounds['pickup']:play()
-                                            player.score = player.score + 100
                                         end
                                     }
                                     
@@ -261,13 +260,36 @@ function LevelMaker.generate(width, height)
                                     if not obj.hit then
                                         obj.hit = true
                                     end
-                                    if obj.hit and keyObtained then
+                                    -- if the player has obtained the key and hits the box...
+                                    if obj.hit then
+                                        -- find the box in the table
                                         for i, v in ipairs(objects) do
                                             if objects[i] == obj then
+                                                -- remove the box from the table
                                                 table.remove(objects, i)
+                                                -- play a sound
                                                 gSounds['pickup']:play()
                                             end
                                         end
+                                        table.insert(objects, 
+                                            GameObject {
+                                                texture = 'flags',
+                                                x = (width * TILE_SIZE) - TILE_SIZE,
+                                                y = (6 - 1) * TILE_SIZE,
+                                                width = 16,
+                                                height = 48,
+                                                frame = math.random(6),
+                                                collidable = true,
+                                                consumable = true,
+                                                solid = false,
+        
+                                                
+                                                -- onConsume = function(player, object)
+                                                --     gSounds['pickup']:play()
+                                                --     player.score = player.score + 100
+                                                -- end
+                                            }
+                                        )
                                     end
 
                                     gSounds['empty-block']:play()
