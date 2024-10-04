@@ -12,7 +12,7 @@ Fox Schwach
 ## Make sure you mention what files your grader should examine, and even better, what line(s) of code you modified.
 
 1. In PlayState, replace the players starting X value with a variable. Prior to that initiate the variable and create logic to check for ground tiles: iterate over the columns of tiles checking for the ground tile id, if there is one, update the x value to whichever is the current column and break out of the loop. Convert the x value to a column value so the player lands squarely on a tile.
-2.
+2. In Levelmaker, create flags for lock and key generation. Create a flag is the key has been obtained. Add sprite sheet frames and textures to dependencies, use logic in frames so that keys access the first half of sheet and locks access second. Create logic for key generation in Levelmaker so they can spawn on a pillar or on the ground. Create logic for lock creation, borrowing heavily from jump box logic, adjust the onCollide function so that if the key is obtained the object will be removed from the table.
 3.
 4.
 

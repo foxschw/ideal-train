@@ -25,6 +25,9 @@ function LevelMaker.generate(width, height)
     -- keep track if a lock and key have been spawned
     local keySpawned = false
     local lockSpawned = false
+    -- simple variable for key frame/color, can be used to spawn lock of same color
+    local randomKeyColor = math.random(#KEYS_AND_LOCKS / 2)
+    local keyObtained = false
 
 
     -- insert blank tables into tiles for later access
@@ -85,7 +88,7 @@ function LevelMaker.generate(width, height)
                 if not keySpawned then
                     -- create key towards second half of level
                     if x > math.floor(width / 2) and x < width then
-                        if math.random(5) == 1 then
+                        if math.random(20) == 1 then
                             table.insert(objects,
                                 GameObject {
                                     texture = 'keys-and-locks',
@@ -93,7 +96,8 @@ function LevelMaker.generate(width, height)
                                     y = (4 - 1) * TILE_SIZE,
                                     width = 16,
                                     height = 16,
-                                    frame = math.random(#KEYS_AND_LOCKS / 2),
+                                    -- only use first half of sprite sheet, keys
+                                    frame = randomKeyColor,
                                     collidable = true,
                                     consumable = true,
                                     solid = false,
@@ -101,11 +105,13 @@ function LevelMaker.generate(width, height)
                                     -- play a sound
                                     onConsume = function(player, object)
                                         gSounds['pickup']:play()
+                                        keyObtained = true
+                                        print("key obtained:")
                                     end
                                 }
                             )
                             keySpawned = true
-                            print("key spawned at x = " .. x)
+                            print("key spawned at x = " .. x .. " on pillar")
                         end
                     end
                 end
@@ -135,7 +141,7 @@ function LevelMaker.generate(width, height)
             if not keySpawned then
                 -- create key towards second half of level
                 if x > math.floor(width / 2) and x < width then
-                    if math.random(5) == 1 then
+                    if math.random(20) == 1 then
                         table.insert(objects,
                             GameObject {
                                 texture = 'keys-and-locks',
@@ -143,7 +149,8 @@ function LevelMaker.generate(width, height)
                                 y = (6 - 1) * TILE_SIZE,
                                 width = 16,
                                 height = 16,
-                                frame = math.random(#KEYS_AND_LOCKS / 2),
+                                -- only use first half of sprite sheet, keys
+                                frame = randomKeyColor,
                                 collidable = true,
                                 consumable = true,
                                 solid = false,
@@ -151,17 +158,20 @@ function LevelMaker.generate(width, height)
                                 -- play a sound
                                 onConsume = function(player, object)
                                     gSounds['pickup']:play()
+                                    keyObtained = true
+                                    print("key obtained:")
                                 end
                             }
                         )
                         keySpawned = true
-                        print("key spawned at x = " .. x)
+                        print("key spawned at x = " .. x .. " on ground")
                     end
                 end
             end
 
             -- chance to spawn a block
             if math.random(10) == 1 then
+
                 table.insert(objects,
 
                     -- jump block
@@ -175,6 +185,7 @@ function LevelMaker.generate(width, height)
                         -- make it a random variant
                         frame = math.random(#JUMP_BLOCKS),
                         collidable = true,
+                        consumable = true,
                         hit = false,
                         solid = true,
 
@@ -221,9 +232,62 @@ function LevelMaker.generate(width, height)
                             gSounds['empty-block']:play()
                         end
                     }
-                )
+                )  
+                
+            end
+
+            -- spawn lock box
+            if not lockSpawned then
+                -- spawn in first half of play area
+                if x < math.floor(width / 2) then
+                    if math.random(20) == 1 then
+
+                        local lockBox = GameObject {
+                                texture = 'keys-and-locks',
+                                x = (x - 1) * TILE_SIZE,
+                                y = (blockHeight - 1) * TILE_SIZE,
+                                width = 16,
+                                height = 16,
+                                -- match lock color to key color
+                                frame = (randomKeyColor + 4),
+                                collidable = true,
+                                consumable = true,
+                                hit = false,
+                                solid = true,
+
+                                -- collision function takes itself
+                                onCollide = function(obj)
+
+                                    if not obj.hit then
+                                        obj.hit = true
+                                    end
+                                    if obj.hit and keyObtained then
+                                        for i, v in ipairs(objects) do
+                                            if objects[i] == obj then
+                                                table.remove(objects, i)
+                                                gSounds['pickup']:play()
+                                            end
+                                        end
+                                    end
+
+                                    gSounds['empty-block']:play()
+                                end   
+                            }
+
+                            table.insert(objects, lockBox)
+                            
+
+                        print("lock spawned at x = " .. x)
+                        lockSpawned = true
+                    end
+                end
             end
         end
+    end
+
+    -- if a key was never generated, regenerate the level
+    if not keySpawned or not lockSpawned then
+        LevelMaker.generate(width, height)
     end
 
     local map = TileMap(width, height)
