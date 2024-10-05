@@ -10,8 +10,9 @@ PlayState = Class{__includes = BaseState}
 function PlayState:init()
     self.camX = 0
     self.camY = 0
-    self.level = LevelMaker.generate(25, 10)
-    self.tileMap = self.level.tileMap
+    -- self.levelWidth = 25
+    -- self.level = LevelMaker.generate(25, 10)
+    -- self.tileMap = self.level.tileMap
     self.background = math.random(3)
     self.backgroundX = 0
 
@@ -21,41 +22,58 @@ function PlayState:init()
     -- initialize a variable for a drop point X value for the player
     self.dropX = 0
 
-    -- iterate over columns to find ground tiles
-    for x = 1, self.tileMap.width do
-        for y = 1, self.tileMap.height do
-            -- if the tile has the ground id, set the x value here and break out of the loop
-            if self.level.tileMap.tiles[y][x].id == TILE_ID_GROUND then
-                self.dropX = x
+
+end
+
+function PlayState:enter(params)
+    self.newScore = params.score
+    -- make sure new width is an integer
+    self.newWidth = math.floor(params.newWidth)
+    
+    -- generate the level and tile map
+    self.level = LevelMaker.generate(self.newWidth, 10)
+    print("current width: " .. self.newWidth)
+    self.tileMap = self.level.tileMap
+
+        -- determine a good drop point for the main character
+        -- iterate over columns to find ground tiles
+        for x = 1, self.tileMap.width do
+            for y = 1, self.tileMap.height do
+                -- if the tile has the ground id, set the x value here and break out of the loop
+                if self.level.tileMap.tiles[y][x].id == TILE_ID_GROUND then
+                    self.dropX = x
+                    break
+                end
+            end
+            -- break out of this loop if the variable has been set
+            if self.dropX > 0 then
                 break
             end
         end
-        -- break out of this loop if the variable has been set
-        if self.dropX > 0 then
-            break
-        end
-    end
+    
+        self.player = Player({
+            -- employ the dropX variable
+            -- convert x to tile size so the player lands directly on the tile (x here refers to coordinates, not tiles)
+            x = (self.dropX * TILE_SIZE) - TILE_SIZE, y = 0,
+            width = 16, height = 20,
+            texture = 'green-alien',
+            stateMachine = StateMachine {
+                ['idle'] = function() return PlayerIdleState(self.player) end,
+                ['walking'] = function() return PlayerWalkingState(self.player) end,
+                ['jump'] = function() return PlayerJumpState(self.player, self.gravityAmount) end,
+                ['falling'] = function() return PlayerFallingState(self.player, self.gravityAmount) end
+            },
+            map = self.tileMap,
+            level = self.level
+        })
 
-    self.player = Player({
-        -- employ the dropX variable
-        -- convert x to tile size so the player lands directly on the tile (x here refers to coordinates, not tiles)
-        x = (self.dropX * TILE_SIZE) - TILE_SIZE, y = 0,
-        width = 16, height = 20,
-        texture = 'green-alien',
-        stateMachine = StateMachine {
-            ['idle'] = function() return PlayerIdleState(self.player) end,
-            ['walking'] = function() return PlayerWalkingState(self.player) end,
-            ['jump'] = function() return PlayerJumpState(self.player, self.gravityAmount) end,
-            ['falling'] = function() return PlayerFallingState(self.player, self.gravityAmount) end
-        },
-        map = self.tileMap,
-        level = self.level
-    })
-
-    self:spawnEnemies()
-
-    self.player:changeState('falling')
-end
+        -- 
+        self.player.score = self.player.score + self.newScore
+    
+        self:spawnEnemies()
+    
+        self.player:changeState('falling')
+end 
 
 function PlayState:update(dt)
     Timer.update(dt)
@@ -74,6 +92,9 @@ function PlayState:update(dt)
     elseif self.player.x > TILE_SIZE * self.tileMap.width - self.player.width then
         self.player.x = TILE_SIZE * self.tileMap.width - self.player.width
     end
+
+    
+
 end
 
 function PlayState:render()

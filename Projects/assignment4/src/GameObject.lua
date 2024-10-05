@@ -9,6 +9,8 @@
 GameObject = Class{}
 
 function GameObject:init(def)
+    -- initialize isPole to be false in case nothing is passed in
+    self.isPole = false
     self.x = def.x
     self.y = def.y
     self.texture = def.texture
@@ -21,6 +23,9 @@ function GameObject:init(def)
     self.onCollide = def.onCollide
     self.onConsume = def.onConsume
     self.hit = def.hit
+    self.isPole = def.isPole
+
+
 end
 
 function GameObject:collides(target)
@@ -33,5 +38,9 @@ function GameObject:update(dt)
 end
 
 function GameObject:render()
-    love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.frame], self.x, self.y)
+    if not self.isPole then
+        love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.frame], self.x, self.y)
+    else
+        love.graphics.draw(gTextures[self.texture], gFrames['flag-poles'][self.frame], self.x, self.y)
+    end
 end

@@ -62,6 +62,9 @@ SNAIL_MOVE_SPEED = 10
 TILE_ID_EMPTY = 5
 TILE_ID_GROUND = 3
 
+-- initial level width
+INIT_LEVEL_WIDTH = 31
+
 -- table of tiles that should trigger a collision
 COLLIDABLE_TILES = {
     TILE_ID_GROUND
@@ -88,6 +91,11 @@ GEMS = {
 
 KEYS_AND_LOCKS = {
     1, 2, 3, 4, 5, 6, 7, 8
+}
+
+-- whitelisted flag types
+FLAGS = {
+    7, 16, 25, 34
 }
 
 JUMP_BLOCKS = {}

@@ -213,6 +213,7 @@ function LevelMaker.generate(width, height)
                                         -- gem has its own function to add to the player's score
                                         onConsume = function(player, object)
                                             gSounds['pickup']:play()
+                                            player.score = player.score + 100
                                         end
                                     }
                                     
@@ -271,24 +272,48 @@ function LevelMaker.generate(width, height)
                                                 gSounds['pickup']:play()
                                             end
                                         end
+                                        -- after hitting lockbox generate flag pole
                                         table.insert(objects, 
                                             GameObject {
                                                 texture = 'flags',
-                                                x = (width * TILE_SIZE) - TILE_SIZE,
-                                                y = (6 - 1) * TILE_SIZE,
+                                                -- place at end, but far enough away to make room for flag
+                                                x = (width * TILE_SIZE) - (TILE_SIZE * 2),
+                                                y = (blockHeight - 1) * TILE_SIZE,
                                                 width = 16,
                                                 height = 48,
                                                 frame = math.random(6),
                                                 collidable = true,
                                                 consumable = true,
                                                 solid = false,
+                                                -- send to different draw/render logic
+                                                isPole = true,
         
                                                 
-                                                -- onConsume = function(player, object)
-                                                --     gSounds['pickup']:play()
-                                                --     player.score = player.score + 100
-                                                -- end
+                                                onConsume = function(player, object)
+                                                    gSounds['pickup']:play()
+                                                    --generate new level if pole is consumed
+                                                    gStateMachine:change('play', {
+                                                        score = player.score,
+                                                        newWidth = width * 1.2
+                                                    })
+                                                end
                                             }
+                                        )
+                                        -- generate flag
+                                        table.insert (objects, 
+                                            GameObject {
+                                                texture = 'flags',
+                                                -- position appropriately on flag pole
+                                                x = (width * TILE_SIZE) - (TILE_SIZE * 1.5),
+                                                y = (blockHeight - 1) * TILE_SIZE + (TILE_SIZE / 3),
+                                                width = 16,
+                                                height = 16,
+                                                -- use standard render logic, but reference whitelisted sections of sprite sheet
+                                                frame = FLAGS[math.random(#FLAGS)],
+                                                collidable = false,
+                                                consumable = false,
+                                                solid = false,
+                                            }    
                                         )
                                     end
 
