@@ -32,7 +32,6 @@ function PlayState:enter(params)
     
     -- generate the level and tile map
     self.level = LevelMaker.generate(self.newWidth, 10)
-    print("current width: " .. self.newWidth)
     self.tileMap = self.level.tileMap
 
         -- determine a good drop point for the main character

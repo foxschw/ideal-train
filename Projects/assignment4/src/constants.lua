@@ -63,7 +63,7 @@ TILE_ID_EMPTY = 5
 TILE_ID_GROUND = 3
 
 -- initial level width
-INIT_LEVEL_WIDTH = 31
+INIT_LEVEL_WIDTH = 100
 
 -- table of tiles that should trigger a collision
 COLLIDABLE_TILES = {

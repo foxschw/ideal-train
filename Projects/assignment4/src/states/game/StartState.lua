@@ -11,7 +11,7 @@
 StartState = Class{__includes = BaseState}
 
 function StartState:init()
-    self.map = LevelMaker.generate(25, 10)
+    self.map = LevelMaker.generate(INIT_LEVEL_WIDTH, 10)
     self.background = math.random(3)
 end
 
