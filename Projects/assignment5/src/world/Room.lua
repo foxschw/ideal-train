@@ -192,7 +192,6 @@ function Room:update(dt)
                             gSounds['heart-pickup']:play()
                         end
                     end
-
                 end
             end
         elseif not entity.dead then

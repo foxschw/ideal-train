@@ -34,7 +34,5 @@ GAME_OBJECT_DEFS = {
         width = 16,
         height = 16,
         solid = false,
-        -- consumable = true,
-        -- consumed = false
     }
 }
