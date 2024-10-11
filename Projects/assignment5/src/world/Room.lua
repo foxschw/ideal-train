@@ -8,9 +8,11 @@
 
 Room = Class{}
 
-function Room:init(player)
+function Room:init(player, dungeon)
     self.width = MAP_WIDTH
     self.height = MAP_HEIGHT
+
+    self.dungeon = dungeon
 
     self.tiles = {}
     self:generateWallsAndFloors()
@@ -78,7 +80,7 @@ function Room:generateEntities()
         })
 
         self.entities[i].stateMachine = StateMachine {
-            ['walk'] = function() return EntityWalkState(self.entities[i]) end,
+            ['walk'] = function() return EntityWalkState(self.entities[i], self.dungeon) end,
             ['idle'] = function() return EntityIdleState(self.entities[i]) end
         }
 
@@ -114,6 +116,20 @@ function Room:generateObjects()
 
     -- add to list of objects in scene (only one switch for now)
     table.insert(self.objects, switch)
+
+    -- create 3 to 5 pots
+    for i = 1, (2 + math.random(3)) do
+        local pot = GameObject(
+            GAME_OBJECT_DEFS['pot'],
+            math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
+                        VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
+            math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
+                        VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
+        )
+
+        -- inset pot into object table
+        table.insert(self.objects, pot)
+    end
 end
 
 --[[

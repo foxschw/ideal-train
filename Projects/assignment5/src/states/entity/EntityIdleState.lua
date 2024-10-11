@@ -11,7 +11,12 @@ EntityIdleState = Class{__includes = BaseState}
 function EntityIdleState:init(entity)
     self.entity = entity
 
-    self.entity:changeAnimation('idle-' .. self.entity.direction)
+    if not self.entity.carrying then
+        self.entity:changeAnimation('idle-' .. self.entity.direction)
+    else
+        -- if carry is true, default to carry-idle
+        self.entity:changeAnimation('carry-idle-' .. self.entity.direction)
+    end
 
     -- used for AI waiting
     self.waitDuration = 0

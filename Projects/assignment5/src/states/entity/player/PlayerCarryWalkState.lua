@@ -6,9 +6,9 @@
     cogden@cs50.harvard.edu
 ]]
 
-PlayerWalkState = Class{__includes = EntityWalkState}
+PlayerCarryWalkState = Class{__includes = EntityWalkState}
 
-function PlayerWalkState:init(player, dungeon)
+function PlayerCarryWalkState:init(player, dungeon)
     self.entity = player
     self.dungeon = dungeon
 
@@ -17,31 +17,26 @@ function PlayerWalkState:init(player, dungeon)
     self.entity.offsetX = 0
 end
 
-function PlayerWalkState:update(dt)
+function PlayerCarryWalkState:update(dt)
     if love.keyboard.isDown('left') then
         self.entity.direction = 'left'
-        self.entity:changeAnimation('walk-left')
+        self.entity:changeAnimation('carry-walk-left')
     elseif love.keyboard.isDown('right') then
         self.entity.direction = 'right'
-        self.entity:changeAnimation('walk-right')
+        self.entity:changeAnimation('carry-walk-right')
     elseif love.keyboard.isDown('up') then
         self.entity.direction = 'up'
-        self.entity:changeAnimation('walk-up')
+        self.entity:changeAnimation('carry-walk-up')
     elseif love.keyboard.isDown('down') then
         self.entity.direction = 'down'
-        self.entity:changeAnimation('walk-down')
+        self.entity:changeAnimation('carry-walk-down')
     else
-        self.entity:changeState('idle')
+        self.entity:changeState('carry-idle')
     end
 
-    if love.keyboard.wasPressed('space') then
-        self.entity:changeState('swing-sword')
-    end
-
-    -- lift action
-    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-        self.entity:changeState('lift')
-    end
+    -- if love.keyboard.wasPressed('space') then
+    --     self.entity:changeState('swing-sword')
+    -- end
 
     -- perform base collision detection against walls
     EntityWalkState.update(self, dt)
@@ -126,10 +121,28 @@ function PlayerWalkState:update(dt)
         -- if it's a heart and the player collides with it, call the onConsume function (see Room.lua)
         if object.type == 'heart' then
             if self.entity:collides(object) then
-                print("Heart collision detected")
                 object:onConsume()
             end
         end
     end
+
+    -- for i = #self.dungeon.currentRoom.objects, 1, -1 do
+    --     local object = self.dungeon.currentRoom.objects[i]
+    --     if object.type == 'heart' then
+    --         if self.entity:collides(object) then
+    --             print("Heart collision detected")
+    --             object:onConsume()
+    --             break  -- Exit the loop after consuming the heart
+    --         end
+    --     end
+    -- end
+
+    -- if self.entity:collides(hearts) then
+    --     for i = 1, #self.dungeon.currentRoom.objects do
+
+    --         local heart = hearts[i]
+    --         self.entity.onConsume(heart)
+    --     end
+    -- end
 
 end

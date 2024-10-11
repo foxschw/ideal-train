@@ -69,6 +69,66 @@ ENTITY_DEFS = {
                 interval = 0.05,
                 looping = false,
                 texture = 'character-swing-sword'
+            },
+            ['carry-walk-left'] = {
+                frames = {13, 14, 15, 16},
+                interval = 0.155,
+                texture = 'character-carry'
+            },
+            ['carry-walk-right'] = {
+                frames = {5, 6, 7, 8},
+                interval = 0.15,
+                texture = 'character-carry'
+            },
+            ['carry-walk-down'] = {
+                frames = {1, 2, 3, 4},
+                interval = 0.15,
+                texture = 'character-carry'
+            },
+            ['carry-walk-up'] = {
+                frames = {9, 10, 11, 12},
+                interval = 0.15,
+                texture = 'character-carry'
+            },
+            ['carry-idle-left'] = {
+                frames = {13},
+                texture = 'character-carry'
+            },
+            ['carry-idle-right'] = {
+                frames = {5},
+                texture = 'character-carry'
+            },
+            ['carry-idle-down'] = {
+                frames = {1},
+                texture = 'character-carry'
+            },
+            ['carry-idle-up'] = {
+                frames = {9},
+                texture = 'character-carry'
+            },
+            ['lift-left'] = {
+                frames = {10, 11, 12},
+                interval = 0.08,
+                looping = false,
+                texture = 'character-lift'
+            },
+            ['lift-right'] = {
+                frames = {4, 5, 6},
+                interval = 0.08,
+                looping = false,
+                texture = 'character-lift'
+            },
+            ['lift-down'] = {
+                frames = {1, 2, 3},
+                interval = 0.08,
+                looping = false,
+                texture = 'character-lift'
+            },
+            ['lift-up'] = {
+                frames = {7, 8, 9},
+                interval = 0.08,
+                looping = false,
+                texture = 'character-lift'
             }
         }
     },

@@ -41,6 +41,8 @@ function Entity:init(def)
 
     -- boolean value if entity will spawn a heart
     self.heart = def.heart
+
+    self.carrying = false
 end
 
 function Entity:createAnimations(animations)

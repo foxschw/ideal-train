@@ -6,15 +6,15 @@
     cogden@cs50.harvard.edu
 ]]
 
-PlayerSwingSwordState = Class{__includes = BaseState}
+PlayerLiftState = Class{__includes = BaseState}
 
-function PlayerSwingSwordState:init(player, dungeon)
+function PlayerLiftState:init(player, dungeon)
     self.player = player
     self.dungeon = dungeon
 
     -- render offset for spaced character sprite
     self.player.offsetY = 5
-    self.player.offsetX = 8
+    self.player.offsetX = 0
 
     -- create hitbox based on where the player is and facing
     local direction = self.player.direction
@@ -45,11 +45,11 @@ function PlayerSwingSwordState:init(player, dungeon)
     -- separate hitbox for the player's sword; will only be active during this state
     self.swordHitbox = Hitbox(hitboxX, hitboxY, hitboxWidth, hitboxHeight)
 
-    -- sword-left, sword-up, etc
-    self.player:changeAnimation('sword-' .. self.player.direction)
+    -- lift-left, lift-up, etc
+    self.player:changeAnimation('lift-' .. self.player.direction)
 end
 
-function PlayerSwingSwordState:enter(params)
+function PlayerLiftState:enter(params)
 
     -- restart sword swing sound for rapid swinging
     gSounds['sword']:stop()
@@ -59,13 +59,15 @@ function PlayerSwingSwordState:enter(params)
     self.player.currentAnimation:refresh()
 end
 
-function PlayerSwingSwordState:update(dt)
+function PlayerLiftState:update(dt)
     
-    -- check if hitbox collides with any entities in the scene
-    for k, entity in pairs(self.dungeon.currentRoom.entities) do
-        if entity:collides(self.swordHitbox) then
-            entity:damage(1)
-            gSounds['hit-enemy']:play()
+    -- check if hitbox collides with the pot in the scene
+    for k, object in pairs(self.dungeon.currentRoom.objects) do
+        if object:collides(self.swordHitbox) then
+            self.player.carrying = true
+            self.player:changeState('carry-idle')
+            
+            -- gSounds['hit-enemy']:play()
         end
     end
 
@@ -76,12 +78,12 @@ function PlayerSwingSwordState:update(dt)
     end
 
     -- allow us to change into this state afresh if we swing within it, rapid swinging
-    if love.keyboard.wasPressed('space') then
-        self.player:changeState('swing-sword')
+    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+        self.player:changeState('lift')
     end
 end
 
-function PlayerSwingSwordState:render()
+function PlayerLiftState:render()
     local anim = self.player.currentAnimation
     love.graphics.draw(gTextures[anim.texture], gFrames[anim.texture][anim:getCurrentFrame()],
         math.floor(self.player.x - self.player.offsetX), math.floor(self.player.y - self.player.offsetY))

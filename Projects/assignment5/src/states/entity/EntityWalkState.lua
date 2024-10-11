@@ -20,6 +20,7 @@ function EntityWalkState:init(entity, dungeon)
 
     -- keeps track of whether we just hit a wall
     self.bumped = false
+
 end
 
 function EntityWalkState:update(dt)
@@ -60,6 +61,27 @@ function EntityWalkState:update(dt)
             self.bumped = true
         end
     end
+
+    -- check for collisions with pots in the current room
+    for k, object in pairs(self.dungeon.currentRoom.objects) do
+        if object.type == 'pot' then
+            if object:collides(self.entity) then
+                -- handle the collision by resetting entity position based on direction and marking bumped as true
+                if self.entity.direction == 'left' then
+                    self.entity.x = object.x + object.width
+                elseif self.entity.direction == 'right' then
+                    self.entity.x = object.x - self.entity.width
+                elseif self.entity.direction == 'up' then
+                    self.entity.y = object.y + object.height
+                elseif self.entity.direction == 'down' then
+                    self.entity.y = object.y - self.entity.height
+                end
+                -- mark the entity as bumped, so it doesn't continue moving
+                self.bumped = true
+            end
+        end
+    end
+    
 end
 
 function EntityWalkState:processAI(params, dt)
