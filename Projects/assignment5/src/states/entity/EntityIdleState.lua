@@ -9,9 +9,6 @@
 EntityIdleState = Class{__includes = BaseState}
 
 function EntityIdleState:init(entity)
-    -- if entity == nil then
-    --     return
-    -- end
     
     self.entity = entity
 

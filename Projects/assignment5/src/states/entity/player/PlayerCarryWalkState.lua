@@ -34,14 +34,11 @@ function PlayerCarryWalkState:update(dt)
         self.entity:changeState('carry-idle')
     end
 
-    -- if love.keyboard.wasPressed('space') then
-    --     self.entity:changeState('swing-sword')
-    -- end
-
     -- perform base collision detection against walls
     EntityWalkState.update(self, dt)
 
     -- if we bumped something when checking collision, check any object collisions
+    -- doorway logic removed, player should not be able to enter doors carrying a pot
     if self.bumped then
         if self.entity.direction == 'left' then
             

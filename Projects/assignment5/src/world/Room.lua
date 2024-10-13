@@ -184,7 +184,7 @@ function Room:update(dt)
     for i = #self.entities, 1, -1 do
         local entity = self.entities[i]
 
-        -- remove entity from the table if health is <= 0, make sure entity hasn't already spawned a heart
+        -- remove entity if health is <= 0, make sure entity hasn't already spawned a heart
         if entity.health <= 0 and not entity.heartSpawned then
             entity.dead = true
             -- set heartSpawned state to true to prevent multiple hearts spawning
@@ -228,10 +228,6 @@ function Room:update(dt)
                 gStateMachine:change('game-over')
             end
         end
-        -- if entity.dead then
-        --     -- table.remove(self.entities, i)
-        --     print("Entity died.")
-        -- end
         
     end
 
@@ -259,34 +255,26 @@ function Room:update(dt)
 
                     -- check collision of the projectile with room boundaries, with buffer for top and left
                     if object.x + object.width >= roomWidthPixels or object.x <= (TILE_SIZE * 2) or 
-                        object.y + object.height >= roomHeightPixels or object.y <= (TILE_SIZE * 2) then
+                        object.y + object.height >= roomHeightPixels or object.y <= (TILE_SIZE) then
                             gSounds['door']:play()
                             table.remove(self.objects, k)
-                            print('removed after hitting wall')
                     end
                     -- get distance traveled in absolute value after thrown
                     local distanceTraveledX = math.abs(object.x - object.startX)
                     local distanceTraveledY = math.abs(object.y - object.startY)
 
-                    if object.throwDirection == 'right' or object.throwDirection == 'left' then
-                        print('horizontal distance = ' .. distanceTraveledX / TILE_SIZE .. ' tiles')
-                    elseif object.throwDirection == 'up' or object.throwDirection == 'down' then
-                        print('vertical distance = ' .. distanceTraveledY / TILE_SIZE .. ' tiles')
-                    end
-
                     -- remove the object if it traveled more than 4 tiles
                     if distanceTraveledX > 4 * TILE_SIZE or distanceTraveledY > 4 * TILE_SIZE then
                         gSounds['door']:play()
                         table.remove(self.objects, k)
-                        print('removed after max distance')
                     end
 
+                    -- if projectile hits an entity, lower its health and remove the projectile
                     for i, entity in ipairs(self.entities) do
                         if not entity.dead and entity:collides(object) then
                             gSounds['door']:play()
                             table.remove(self.objects, k)
                             entity.health = entity.health - 1
-                            print('removed after hitting entity')
                         end
                     end
 
@@ -315,6 +303,7 @@ function Room:render()
         doorway:render(self.adjacentOffsetX, self.adjacentOffsetY)
     end
 
+    -- render non-carried objects first for perspective
     for k, object in pairs(self.objects) do
         if not object.carried then
             object:render(self.adjacentOffsetX, self.adjacentOffsetY)
@@ -353,6 +342,7 @@ function Room:render()
         self.player:render()
     end
 
+    -- render carried objects last for perspective
     for k, object in pairs(self.objects) do
         if object.carried or object.projectile then
             object:render(self.adjacentOffsetX, self.adjacentOffsetY)

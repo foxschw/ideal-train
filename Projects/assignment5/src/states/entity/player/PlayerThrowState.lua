@@ -16,46 +16,17 @@ function PlayerThrowState:init(player, dungeon)
     self.player.offsetY = 5
     self.player.offsetX = 0
 
-    -- create hitbox based on where the player is and facing
-    local direction = self.player.direction
-    -- local hitboxX, hitboxY, hitboxWidth, hitboxHeight
-
-    -- if direction == 'left' then
-    --     hitboxWidth = 8
-    --     hitboxHeight = 16
-    --     hitboxX = self.player.x - hitboxWidth
-    --     hitboxY = self.player.y + 2
-    -- elseif direction == 'right' then
-    --     hitboxWidth = 8
-    --     hitboxHeight = 16
-    --     hitboxX = self.player.x + self.player.width
-    --     hitboxY = self.player.y + 2
-    -- elseif direction == 'up' then
-    --     hitboxWidth = 16
-    --     hitboxHeight = 8
-    --     hitboxX = self.player.x
-    --     hitboxY = self.player.y - hitboxHeight
-    -- else
-    --     hitboxWidth = 16
-    --     hitboxHeight = 8
-    --     hitboxX = self.player.x
-    --     hitboxY = self.player.y + self.player.height
-    -- end
-
-    -- -- separate hitbox for the player's sword; will only be active during this state
-    -- self.swordHitbox = Hitbox(hitboxX, hitboxY, hitboxWidth, hitboxHeight)
-
     -- lift-left, lift-up, etc
     self.player:changeAnimation('throw-' .. self.player.direction)
 end
 
 function PlayerThrowState:enter(params)
 
-    -- restart sword swing sound for rapid swinging
+    -- throw sound
     gSounds['sword']:stop()
     gSounds['sword']:play()
 
-    -- restart sword swing animation
+    -- restart throw animation
     self.player.currentAnimation:refresh()
 end
 
@@ -65,9 +36,8 @@ function PlayerThrowState:update(dt)
         if object.carried then
             -- update player and change state
             self.player.carrying = false
-            
-            
-            -- update the object and animate it to the correct position
+             
+            -- update the object
             object.solid = true
             object.carried = false
              -- set initial startX and startY only when the object is first thrown
@@ -85,7 +55,7 @@ function PlayerThrowState:update(dt)
                     [object] = {y = self.player.y, x = self.player.x - object.width}
                 }):finish(function()
                     object.projectile = true
-                    -- set start XY values to eventually determine start of throw
+                    -- set start XY values to determine start of throw after the animation
                     object.startX = object.x 
                     object.startY = object.y
                 end)

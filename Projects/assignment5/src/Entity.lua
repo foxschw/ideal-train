@@ -42,6 +42,7 @@ function Entity:init(def)
     -- boolean value if entity will spawn a heart
     self.heart = def.heart
 
+    -- entity carrying state
     self.carrying = false
 end
 

@@ -42,7 +42,7 @@ function PlayerLiftState:init(player, dungeon)
         hitboxY = self.player.y + self.player.height
     end
 
-    -- separate hitbox for the player's sword; will only be active during this state
+    -- separate hitbox for the player's lift zone; will only be active during this state
     self.swordHitbox = Hitbox(hitboxX, hitboxY, hitboxWidth, hitboxHeight)
 
     -- lift-left, lift-up, etc
@@ -51,11 +51,11 @@ end
 
 function PlayerLiftState:enter(params)
 
-    -- restart sword swing sound for rapid swinging
+    -- restart lift sound for rapid lifting
     gSounds['sword']:stop()
     gSounds['sword']:play()
 
-    -- restart sword swing animation
+    -- restart lift animation
     self.player.currentAnimation:refresh()
 end
 
@@ -84,7 +84,7 @@ function PlayerLiftState:update(dt)
         self.player:changeState('idle')
     end
 
-    -- allow us to change into this state afresh if we swing within it, rapid swinging
+    -- allow us to change into this state afresh if we lift within it, rapid lifting
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
         self.player:changeState('lift')
     end

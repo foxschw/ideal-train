@@ -31,6 +31,7 @@ function GameObject:init(def, x, y)
 
     self.player = def.player
 
+    -- determine if object is in a projectile state
     self.projectile = def.projectile
 
     -- reference later once an object is thrown
@@ -40,7 +41,7 @@ function GameObject:init(def, x, y)
     self.startX = nil
     self.startY = nil
 
-    -- default empty collision callback
+    -- default empty collision and consume callback
     self.onCollide = function() end
 
     self.onConsume = function() end
@@ -61,7 +62,7 @@ function GameObject:collides(target)
 end
 
 function GameObject:throwProjectile(player, dt)
-    -- add a collision buffer that delays collision checks for a short time after throwing
+    -- collision buffer that delays collision checks for a short time after throwing
     -- takes care of edge cases where pot is rendered on top of wall due to perspective
     if not self.collisionBuffer then
         self.collisionBuffer = 0.4
@@ -72,9 +73,9 @@ function GameObject:throwProjectile(player, dt)
         self.collisionBuffer = self.collisionBuffer - dt
     end
     
-    
+    -- speed of projectile
     local speed = 45
-    -- move the object in the direction it was thrown, not the player's current direction
+    -- move the object in the direction it was thrown
     if self.throwDirection == 'right' then
         self.x = self.x + speed * dt
     elseif self.throwDirection == 'left' then

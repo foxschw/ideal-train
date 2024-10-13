@@ -10,10 +10,6 @@ EntityWalkState = Class{__includes = BaseState}
 
 function EntityWalkState:init(entity, dungeon)
     
-    -- if entity == nil then
-    --     return
-    -- end
-    
     self.entity = entity
     self.entity:changeAnimation('walk-down')
 
@@ -29,10 +25,6 @@ function EntityWalkState:init(entity, dungeon)
 end
 
 function EntityWalkState:update(dt)
-    
-    -- if self.entity == nil then
-    --     return
-    -- end
     
     -- assume we didn't hit a wall
     self.bumped = false
@@ -104,10 +96,6 @@ end
 
 function EntityWalkState:processAI(params, dt)
     local room = params.room
-    
-    -- if self.entity == nil then
-    --     return
-    -- end
 
     local directions = {'left', 'right', 'up', 'down'}
 
