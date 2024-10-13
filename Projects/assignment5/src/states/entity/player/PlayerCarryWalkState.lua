@@ -48,32 +48,12 @@ function PlayerCarryWalkState:update(dt)
             -- temporarily adjust position into the wall, since bumping pushes outward
             self.entity.x = self.entity.x - PLAYER_WALK_SPEED * dt
             
-            -- check for colliding into doorway to transition
-            for k, doorway in pairs(self.dungeon.currentRoom.doorways) do
-                if self.entity:collides(doorway) and doorway.open then
-
-                    -- shift entity to center of door to avoid phasing through wall
-                    self.entity.y = doorway.y + 4
-                    Event.dispatch('shift-left')
-                end
-            end
-
             -- readjust
             self.entity.x = self.entity.x + PLAYER_WALK_SPEED * dt
         elseif self.entity.direction == 'right' then
             
             -- temporarily adjust position
             self.entity.x = self.entity.x + PLAYER_WALK_SPEED * dt
-            
-            -- check for colliding into doorway to transition
-            for k, doorway in pairs(self.dungeon.currentRoom.doorways) do
-                if self.entity:collides(doorway) and doorway.open then
-
-                    -- shift entity to center of door to avoid phasing through wall
-                    self.entity.y = doorway.y + 4
-                    Event.dispatch('shift-right')
-                end
-            end
 
             -- readjust
             self.entity.x = self.entity.x - PLAYER_WALK_SPEED * dt
@@ -82,38 +62,22 @@ function PlayerCarryWalkState:update(dt)
             -- temporarily adjust position
             self.entity.y = self.entity.y - PLAYER_WALK_SPEED * dt
             
-            -- check for colliding into doorway to transition
-            for k, doorway in pairs(self.dungeon.currentRoom.doorways) do
-                if self.entity:collides(doorway) and doorway.open then
-
-                    -- shift entity to center of door to avoid phasing through wall
-                    self.entity.x = doorway.x + 8
-                    Event.dispatch('shift-up')
-                end
-            end
-
             -- readjust
             self.entity.y = self.entity.y + PLAYER_WALK_SPEED * dt
         else
             
             -- temporarily adjust position
             self.entity.y = self.entity.y + PLAYER_WALK_SPEED * dt
-            
-            -- check for colliding into doorway to transition
-            for k, doorway in pairs(self.dungeon.currentRoom.doorways) do
-                if self.entity:collides(doorway) and doorway.open then
-
-                    -- shift entity to center of door to avoid phasing through wall
-                    self.entity.x = doorway.x + 8
-                    Event.dispatch('shift-down')
-                end
-            end
 
             -- readjust
             self.entity.y = self.entity.y - PLAYER_WALK_SPEED * dt
         end
     end
 
+    -- throw while walking
+    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+        self.entity:changeState('throw')
+    end
 
     -- Heart consumption logic
     -- iterate through objects in room
@@ -125,24 +89,5 @@ function PlayerCarryWalkState:update(dt)
             end
         end
     end
-
-    -- for i = #self.dungeon.currentRoom.objects, 1, -1 do
-    --     local object = self.dungeon.currentRoom.objects[i]
-    --     if object.type == 'heart' then
-    --         if self.entity:collides(object) then
-    --             print("Heart collision detected")
-    --             object:onConsume()
-    --             break  -- Exit the loop after consuming the heart
-    --         end
-    --     end
-    -- end
-
-    -- if self.entity:collides(hearts) then
-    --     for i = 1, #self.dungeon.currentRoom.objects do
-
-    --         local heart = hearts[i]
-    --         self.entity.onConsume(heart)
-    --     end
-    -- end
 
 end

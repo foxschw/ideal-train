@@ -42,6 +42,8 @@ function Room:init(player, dungeon)
     -- used for drawing when this room is the next room, adjacent to the active
     self.adjacentOffsetX = 0
     self.adjacentOffsetY = 0
+
+    self.walls = {}
 end
 
 --[[
@@ -210,6 +212,7 @@ function Room:update(dt)
                     end
                 end
             end
+            
         elseif not entity.dead then
             entity:processAI({room = self}, dt)
             entity:update(dt)
@@ -225,15 +228,74 @@ function Room:update(dt)
                 gStateMachine:change('game-over')
             end
         end
+        -- if entity.dead then
+        --     -- table.remove(self.entities, i)
+        --     print("Entity died.")
+        -- end
+        
     end
 
     for k, object in pairs(self.objects) do
-        object:update(dt)
+        -- pass in player so pot can track player if carried
+        object:update(self.player, dt)
 
         -- trigger collision callback on object
         if self.player:collides(object) then
             object:onCollide()
         end
+
+        -- move pots marked as projectiles
+        for k, object in pairs(self.objects) do
+            if object.projectile then
+                object:throwProjectile(self.player, dt)
+                
+                -- slight buffer to collision detection to account for perspective rendering over walls
+                if object.collisionBuffer <= 0 then
+
+                    -- define room boundaries in pixels
+                    local roomWidthPixels = self.width * TILE_SIZE
+                    local roomHeightPixels = self.height * TILE_SIZE
+                    
+
+                    -- check collision of the projectile with room boundaries, with buffer for top and left
+                    if object.x + object.width >= roomWidthPixels or object.x <= (TILE_SIZE * 2) or 
+                        object.y + object.height >= roomHeightPixels or object.y <= (TILE_SIZE * 2) then
+                            gSounds['door']:play()
+                            table.remove(self.objects, k)
+                            print('removed after hitting wall')
+                    end
+                    -- get distance traveled in absolute value after thrown
+                    local distanceTraveledX = math.abs(object.x - object.startX)
+                    local distanceTraveledY = math.abs(object.y - object.startY)
+
+                    if object.throwDirection == 'right' or object.throwDirection == 'left' then
+                        print('horizontal distance = ' .. distanceTraveledX / TILE_SIZE .. ' tiles')
+                    elseif object.throwDirection == 'up' or object.throwDirection == 'down' then
+                        print('vertical distance = ' .. distanceTraveledY / TILE_SIZE .. ' tiles')
+                    end
+
+                    -- remove the object if it traveled more than 4 tiles
+                    if distanceTraveledX > 4 * TILE_SIZE or distanceTraveledY > 4 * TILE_SIZE then
+                        gSounds['door']:play()
+                        table.remove(self.objects, k)
+                        print('removed after max distance')
+                    end
+
+                    for i, entity in ipairs(self.entities) do
+                        if not entity.dead and entity:collides(object) then
+                            gSounds['door']:play()
+                            table.remove(self.objects, k)
+                            entity.health = entity.health - 1
+                            print('removed after hitting entity')
+                        end
+                    end
+
+                end
+
+
+            end
+        end
+
     end
 end
 
@@ -254,12 +316,16 @@ function Room:render()
     end
 
     for k, object in pairs(self.objects) do
-        object:render(self.adjacentOffsetX, self.adjacentOffsetY)
+        if not object.carried then
+            object:render(self.adjacentOffsetX, self.adjacentOffsetY)
+        end 
     end
 
     for k, entity in pairs(self.entities) do
         if not entity.dead then entity:render(self.adjacentOffsetX, self.adjacentOffsetY) end
     end
+
+    
 
     -- stencil out the door arches so it looks like the player is going through
     love.graphics.stencil(function()
@@ -285,6 +351,12 @@ function Room:render()
     
     if self.player then
         self.player:render()
+    end
+
+    for k, object in pairs(self.objects) do
+        if object.carried or object.projectile then
+            object:render(self.adjacentOffsetX, self.adjacentOffsetY)
+        end 
     end
 
     love.graphics.setStencilTest()

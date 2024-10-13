@@ -63,11 +63,18 @@ function PlayerLiftState:update(dt)
     
     -- check if hitbox collides with the pot in the scene
     for k, object in pairs(self.dungeon.currentRoom.objects) do
-        if object:collides(self.swordHitbox) then
+        if object.type == 'pot' and object:collides(self.swordHitbox) then
+            -- update player and change state
             self.player.carrying = true
             self.player:changeState('carry-idle')
-            
-            -- gSounds['hit-enemy']:play()
+            -- play a sound
+            gSounds['heart-pickup']:play()
+            -- update the object and animate it to the correct position
+            object.solid = false
+            object.carried = true
+            Timer.tween(0.08, {
+                [object] = {y = self.player.y - (object.height + 3), x = self.player.x}
+            })
         end
     end
 
@@ -92,9 +99,9 @@ function PlayerLiftState:render()
     -- debug for player and hurtbox collision rects VV
     --
 
-    love.graphics.setColor(255, 0, 255, 255)
-    love.graphics.rectangle('line', self.player.x, self.player.y, self.player.width, self.player.height)
-    love.graphics.rectangle('line', self.swordHitbox.x, self.swordHitbox.y,
-        self.swordHitbox.width, self.swordHitbox.height)
-    love.graphics.setColor(255, 255, 255, 255)
+    -- love.graphics.setColor(255, 0, 255, 255)
+    -- love.graphics.rectangle('line', self.player.x, self.player.y, self.player.width, self.player.height)
+    -- love.graphics.rectangle('line', self.swordHitbox.x, self.swordHitbox.y,
+    --     self.swordHitbox.width, self.swordHitbox.height)
+    -- love.graphics.setColor(255, 255, 255, 255)
 end

@@ -49,9 +49,9 @@ end
 ]]
 function Dungeon:beginShifting(shiftX, shiftY)
 
-    -- commence shifting and create a new room to transition to
+    -- commence shifting and create a new room to transition to, pass in self for entity walk state
     self.shifting = true
-    self.nextRoom = Room(self.player)
+    self.nextRoom = Room(self.player, self)
 
     -- start all doors in next room as open until we get in
     for k, doorway in pairs(self.nextRoom.doorways) do

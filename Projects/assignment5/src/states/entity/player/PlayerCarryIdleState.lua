@@ -21,7 +21,8 @@ function PlayerCarryIdleState:update(dt)
         self.entity:changeState('carry-walk')
     end
 
-    -- if love.keyboard.wasPressed('space') then
-    --     self.entity:changeState('swing-sword')
-    -- end
+    -- throw while idling
+    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+        self.entity:changeState('throw')
+    end
 end

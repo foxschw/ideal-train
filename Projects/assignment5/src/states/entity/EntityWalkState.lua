@@ -9,6 +9,11 @@
 EntityWalkState = Class{__includes = BaseState}
 
 function EntityWalkState:init(entity, dungeon)
+    
+    -- if entity == nil then
+    --     return
+    -- end
+    
     self.entity = entity
     self.entity:changeAnimation('walk-down')
 
@@ -25,8 +30,16 @@ end
 
 function EntityWalkState:update(dt)
     
+    -- if self.entity == nil then
+    --     return
+    -- end
+    
     -- assume we didn't hit a wall
     self.bumped = false
+
+    -- store the original position (before any movement) in case of collision
+    local originalX = self.entity.x
+    local originalY = self.entity.y
 
     -- boundary checking on all sides, allowing us to avoid collision detection on tiles
     if self.entity.direction == 'left' then
@@ -61,24 +74,29 @@ function EntityWalkState:update(dt)
             self.bumped = true
         end
     end
-
-    -- check for collisions with pots in the current room
+    
+    -- pot collision
     for k, object in pairs(self.dungeon.currentRoom.objects) do
-        if object.type == 'pot' then
-            if object:collides(self.entity) then
-                -- handle the collision by resetting entity position based on direction and marking bumped as true
-                if self.entity.direction == 'left' then
-                    self.entity.x = object.x + object.width
-                elseif self.entity.direction == 'right' then
-                    self.entity.x = object.x - self.entity.width
-                elseif self.entity.direction == 'up' then
-                    self.entity.y = object.y + object.height
-                elseif self.entity.direction == 'down' then
-                    self.entity.y = object.y - self.entity.height
-                end
-                -- mark the entity as bumped, so it doesn't continue moving
-                self.bumped = true
+        if object.solid and object:collides(self.entity) then
+            -- restore the entity's position to its original location if bumped into the pot
+            -- add an offset so entities don't get stuck in pots
+            if self.entity.direction == 'left' then
+                self.entity.x = originalX + 1
+                self.entity.y = originalY
             end
+            if self.entity.direction == 'right' then
+                self.entity.x = originalX - 1
+                self.entity.y = originalY
+            end
+            if self.entity.direction == 'down' then
+                self.entity.x = originalX
+                self.entity.y = originalY - 1
+            end
+            if self.entity.direction == 'up' then
+                self.entity.x = originalX
+                self.entity.y = originalY + 1
+            end
+            self.bumped = true
         end
     end
     
@@ -86,6 +104,11 @@ end
 
 function EntityWalkState:processAI(params, dt)
     local room = params.room
+    
+    -- if self.entity == nil then
+    --     return
+    -- end
+
     local directions = {'left', 'right', 'up', 'down'}
 
     if self.moveDuration == 0 or self.bumped then

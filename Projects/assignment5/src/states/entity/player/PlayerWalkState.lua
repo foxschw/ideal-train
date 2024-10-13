@@ -126,7 +126,6 @@ function PlayerWalkState:update(dt)
         -- if it's a heart and the player collides with it, call the onConsume function (see Room.lua)
         if object.type == 'heart' then
             if self.entity:collides(object) then
-                print("Heart collision detected")
                 object:onConsume()
             end
         end

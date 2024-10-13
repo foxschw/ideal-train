@@ -29,28 +29,64 @@ function GameObject:init(def, x, y)
     self.width = def.width
     self.height = def.height
 
+    self.player = def.player
+
+    self.projectile = def.projectile
+
+    -- reference later once an object is thrown
+    self.throwDirection = nil
+
+    -- track the initial position when thrown
+    self.startX = nil
+    self.startY = nil
+
     -- default empty collision callback
     self.onCollide = function() end
 
     self.onConsume = function() end
 end
 
-function GameObject:update(dt)
-
+function GameObject:update(player, dt)
+    if self.carried then
+        self.x = player.x
+        self.y = player.y - self.height + 3
+    end
 end
 
--- collision detection for objects
+-- collision detection for objects with a slight offest to bottom to accomodate viewing angle
+-- and to let entities get visually closer
 function GameObject:collides(target)
-    return not (self.x + self.width < target.x or self.x > target.x + target.width or
-                self.y + self.height < target.y or self.y > target.y + target.height)
+    return not (self.x + (self.width - 2) < target.x or (self.x + 2) > target.x + target.width or
+                self.y + (self.height - 12) < target.y or (self.y + 2) > target.y + target.height)
+end
+
+function GameObject:throwProjectile(player, dt)
+    -- add a collision buffer that delays collision checks for a short time after throwing
+    -- takes care of edge cases where pot is rendered on top of wall due to perspective
+    if not self.collisionBuffer then
+        self.collisionBuffer = 0.4
+    end
+
+    -- update the buffer timer
+    if self.collisionBuffer > 0 then
+        self.collisionBuffer = self.collisionBuffer - dt
+    end
+    
+    
+    local speed = 45
+    -- move the object in the direction it was thrown, not the player's current direction
+    if self.throwDirection == 'right' then
+        self.x = self.x + speed * dt
+    elseif self.throwDirection == 'left' then
+        self.x = self.x - speed * dt
+    elseif self.throwDirection == 'up' then
+        self.y = self.y - speed * dt
+    elseif self.throwDirection == 'down' then
+        self.y = self.y + speed * dt
+    end
 end
 
 function GameObject:render(adjacentOffsetX, adjacentOffsetY)
-    -- if self.state then
         love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.states[self.state].frame or self.frame],
             self.x + adjacentOffsetX, self.y + adjacentOffsetY)
-    -- else
-    --     love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.frame],
-    --         self.x + adjacentOffsetX, self.y + adjacentOffsetY)
-    -- end
 end
