@@ -18,6 +18,9 @@ function Level:init()
     -- actual collision callbacks can cause stack overflow and other errors
     self.destroyedBodies = {}
 
+    -- counter for aliens that have stopped rolling
+    self.counter = 0
+
     -- define collision callbacks for our world; the World object expects four,
     -- one for different stages of any given collision
     function beginContact(a, b, coll)
@@ -193,12 +196,43 @@ function Level:update(dt)
 
     -- replace launch marker if original alien stopped moving
     if self.launchMarker.launched then
-        local xPos, yPos = self.launchMarker.alien.body:getPosition()
-        local xVel, yVel = self.launchMarker.alien.body:getLinearVelocity()
+
+
+        local movingFlag = true
+        local offScreen = false
+
+        print(movingFlag)
+        print('----')
+        
+        for i = #self.launchMarker.aliens, 1, -1 do
+
+            
+
+            local xPos, yPos = self.launchMarker.aliens[i].body:getPosition()
+            local xVel, yVel = self.launchMarker.aliens[i].body:getLinearVelocity()
+
+            if (math.abs(xVel) + math.abs(yVel) > 1.5) then
+                movingFlag = false
+                -- print('false')
+            end
+
+            if xPos < 0 then
+                offScreen = true
+                break
+            end
+
+        end
+
+        print(movingFlag)
+        print('----')
         
         -- if we fired our alien to the left or it's almost done rolling, respawn
-        if xPos < 0 or (math.abs(xVel) + math.abs(yVel) < 1.5) then
-            self.launchMarker.alien.body:destroy()
+        if movingFlag or offScreen then
+            for i = #self.launchMarker.aliens, 1, -1 do
+                self.launchMarker.aliens[i].body:destroy()
+            end
+            
+            
             self.launchMarker = AlienLaunchMarker(self.world)
 
             -- re-initialize level if we have no more aliens

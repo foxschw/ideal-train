@@ -27,6 +27,8 @@ function AlienLaunchMarker:init(world)
 
     -- our alien table we will eventually spawn
     self.aliens = {}
+
+    self.spacePressed = false
 end
 
 function AlienLaunchMarker:update(dt)
@@ -68,7 +70,10 @@ function AlienLaunchMarker:update(dt)
         end
     else
         -- if launched, check for spacebar pressed before players have collided
-        if love.keyboard.wasPressed('space') and not self.aliens[1].fixture:getUserData().collided then
+        if love.keyboard.wasPressed('space') and not self.aliens[1].fixture:getUserData().collided and not self.spacePressed then
+            -- ensure user cannot split the alien multiple times
+            self.spacePressed = true
+            
             -- store values of initial alien launched
             local velX, velY = self.aliens[1].body:getLinearVelocity()
             local xPos, yPos = self.aliens[1].body:getPosition()
@@ -83,7 +88,17 @@ function AlienLaunchMarker:update(dt)
             self.newAlien.fixture:setRestitution(0.4)
             self.newAlien.body:setAngularDamping(1)
 
+            self.newAlienTwo = Alien(self.world, 'round', xPos, yPos, {role = 'Player', collided = false})
+
+            -- adjust linear velocity to allow for different trajectory
+            self.newAlienTwo.body:setLinearVelocity(velX, velY - 80)
+
+            -- make the alien pretty bouncy
+            self.newAlienTwo.fixture:setRestitution(0.4)
+            self.newAlienTwo.body:setAngularDamping(1)
+
             table.insert(self.aliens, self.newAlien)
+            table.insert(self.aliens, self.newAlienTwo)
         end
     end
 end

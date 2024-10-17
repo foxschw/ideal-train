@@ -11,7 +11,7 @@ Fox Schwach
 ## For EACH of the items listed in specifications, provide a sentence or so describing how you accomplished the requirements. 
 ## Make sure you mention what files your grader should examine, and even better, what line(s) of code you modified.
 
-1. Change userData for all fixtures in the game such that userData consists of a table instead of a single string, add a "collided" flag to the table. Update collision logic such that player fixture collision flag updates after the collision. In AlienLaunchMarker, self.alien must become the empty table self.aliens, into which newly spawned aliens will be placed. Add logic such that after the alien has been launched, new aliens will spawn.
+1. Change userData for all fixtures in the game such that userData consists of a table instead of a single string, add a "collided" flag to the table. Update collision logic such that player fixture collision flag updates after the collision. In AlienLaunchMarker, self.alien must become the empty table self.aliens, into which newly spawned aliens will be placed. Add logic such that after the alien has been launched, new aliens will spawn if spacebar is pressed (set a flag also for spacebar being pressed that prevents users from splitting the alien more than once)
 
 ## How would you rate your own design? Place an X in one of the set of brackets below. (Your answer will not have an impact on how the staff scores your design)
 
