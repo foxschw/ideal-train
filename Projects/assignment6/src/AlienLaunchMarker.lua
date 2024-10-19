@@ -28,6 +28,7 @@ function AlienLaunchMarker:init(world)
     -- our alien table we will eventually spawn
     self.aliens = {}
 
+    -- flag for spacebar being pressed
     self.spacePressed = false
 end
 
@@ -69,7 +70,7 @@ function AlienLaunchMarker:update(dt)
             self.shiftedY = math.min(self.baseY + 30, math.max(y, self.baseY - 30))
         end
     else
-        -- if launched, check for spacebar pressed before players have collided
+        -- if launched, check for spacebar pressed (assuming it hasn't been pressed yet) before players have collided
         if love.keyboard.wasPressed('space') and not self.aliens[1].fixture:getUserData().collided and not self.spacePressed then
             -- ensure user cannot split the alien multiple times
             self.spacePressed = true
@@ -78,27 +79,22 @@ function AlienLaunchMarker:update(dt)
             local velX, velY = self.aliens[1].body:getLinearVelocity()
             local xPos, yPos = self.aliens[1].body:getPosition()
 
-            -- spawn new alien in the world
-            self.newAlien = Alien(self.world, 'round', xPos, yPos, {role = 'Player', collided = false})
+            -- helper function to create a new alien with velocity adjustment
+            local function createAlien(x, y, vx, vy, yOffset)
+                local alien = Alien(self.world, 'round', x, y, {role = 'Player', collided = false})
+                alien.body:setLinearVelocity(vx, vy + yOffset)
+                alien.fixture:setRestitution(0.4)
+                alien.body:setAngularDamping(1)
+                return alien
+            end
 
-            -- adjust linear velocity to allow for different trajectory
-            self.newAlien.body:setLinearVelocity(velX, velY + 80)
+            -- create two new aliens with adjusted velocities
+            local newAlien = createAlien(xPos, yPos, velX, velY, 80)
+            local newAlienTwo = createAlien(xPos, yPos, velX, velY, -80)
 
-            -- make the alien pretty bouncy
-            self.newAlien.fixture:setRestitution(0.4)
-            self.newAlien.body:setAngularDamping(1)
-
-            self.newAlienTwo = Alien(self.world, 'round', xPos, yPos, {role = 'Player', collided = false})
-
-            -- adjust linear velocity to allow for different trajectory
-            self.newAlienTwo.body:setLinearVelocity(velX, velY - 80)
-
-            -- make the alien pretty bouncy
-            self.newAlienTwo.fixture:setRestitution(0.4)
-            self.newAlienTwo.body:setAngularDamping(1)
-
-            table.insert(self.aliens, self.newAlien)
-            table.insert(self.aliens, self.newAlienTwo)
+            -- insert new aliens to table
+            table.insert(self.aliens, newAlien)
+            table.insert(self.aliens, newAlienTwo)
         end
     end
 end

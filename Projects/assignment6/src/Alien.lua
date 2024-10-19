@@ -32,8 +32,6 @@ function Alien:init(world, type, x, y, userData)
     -- used to keep track of despawning the Alien and flinging it
     self.launched = false
 
-    -- set flag to determine if alien has collided with anything
-    self.collided = false
 end
 
 function Alien:render()

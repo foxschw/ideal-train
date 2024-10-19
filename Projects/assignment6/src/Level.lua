@@ -134,6 +134,10 @@ function Level:init()
     -- simple edge shape to represent collision for ground
     self.edgeShape = love.physics.newEdgeShape(0, 0, VIRTUAL_WIDTH * 3, 0)
 
+    -- wall offscreen right to stop aliens from rolling too far
+    -- users don't have to wait forever for aliens to stop rolling
+    self.wallShape = love.physics.newEdgeShape(0, 0, 0, VIRTUAL_HEIGHT * 2)
+
     -- spawn an alien to try and destroy
     table.insert(self.aliens, Alien(self.world, 'square', VIRTUAL_WIDTH - 80, VIRTUAL_HEIGHT - TILE_SIZE - ALIEN_SIZE / 2, {role = 'Alien', collided = false}))
 
@@ -150,6 +154,13 @@ function Level:init()
     self.groundFixture = love.physics.newFixture(self.groundBody, self.edgeShape)
     self.groundFixture:setFriction(0.5)
     self.groundFixture:setUserData({role = 'Ground', collided = false})
+
+    -- wall data
+    self.wallBody = love.physics.newBody(self.world, VIRTUAL_WIDTH * 2, 0, 'static')
+    self.wallFixture = love.physics.newFixture(self.wallBody, self.wallShape)
+    self.wallFixture:setFriction(0.5)
+    -- the role can stay ground since it should behave the same
+    self.wallFixture:setUserData({role = 'Ground', collided = false})
 
     -- background graphics
     self.background = Background()
@@ -194,40 +205,35 @@ function Level:update(dt)
         end
     end
 
-    -- replace launch marker if original alien stopped moving
+    -- replace launch marker if aliens stopped moving
     if self.launchMarker.launched then
 
-
-        local movingFlag = true
+        -- set flags for moving and offscreen
+        local stoppedFlag = true
         local offScreen = false
-
-        print(movingFlag)
-        print('----')
         
         for i = #self.launchMarker.aliens, 1, -1 do
 
-            
-
+            -- get positions and velocities of all aliens
             local xPos, yPos = self.launchMarker.aliens[i].body:getPosition()
             local xVel, yVel = self.launchMarker.aliens[i].body:getLinearVelocity()
 
+            -- stoppedFlag starts true, but flips to false and remains false as long as any aliens are moving for every cycle of update phase
+            -- if all aliens have stopped, stoppedFlag won't be flipped to false and remain true from before, which will trigger launchMarker
             if (math.abs(xVel) + math.abs(yVel) > 1.5) then
-                movingFlag = false
-                -- print('false')
+                stoppedFlag = false
             end
 
+            -- flip to true if any alien goes offscreen left
             if xPos < 0 then
                 offScreen = true
                 break
             end
-
         end
-
-        print(movingFlag)
-        print('----')
         
-        -- if we fired our alien to the left or it's almost done rolling, respawn
-        if movingFlag or offScreen then
+        -- if we fired our alien to the left or it's almost done rolling, respawn, or if all aliens have stopped
+        -- if any aliens go offscreen to left, the launchMarker will respawn.
+        if stoppedFlag or offScreen then
             for i = #self.launchMarker.aliens, 1, -1 do
                 self.launchMarker.aliens[i].body:destroy()
             end
