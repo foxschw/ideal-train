@@ -25,32 +25,44 @@ function Selection:init(def)
     self.gapHeight = self.height / #self.items
 
     self.currentSelection = 1
+
+    -- pass in the type, use 'choice' as default
+    self.type = def.type or 'choice'
+
 end
 
 function Selection:update(dt)
-    if love.keyboard.wasPressed('up') then
-        if self.currentSelection == 1 then
-            self.currentSelection = #self.items
-        else
-            self.currentSelection = self.currentSelection - 1
+    -- run selection logic if the type is choice
+    if self.type == 'choice' then
+        if love.keyboard.wasPressed('up') then
+            if self.currentSelection == 1 then
+                self.currentSelection = #self.items
+            else
+                self.currentSelection = self.currentSelection - 1
+            end
+            
+            gSounds['blip']:stop()
+            gSounds['blip']:play()
+        elseif love.keyboard.wasPressed('down') then
+            if self.currentSelection == #self.items then
+                self.currentSelection = 1
+            else
+                self.currentSelection = self.currentSelection + 1
+            end
+            
+            gSounds['blip']:stop()
+            gSounds['blip']:play()
+        elseif love.keyboard.wasPressed('return') or love.keyboard.wasPressed('enter') then
+            self.items[self.currentSelection].onSelect()
+            
+            gSounds['blip']:stop()
+            gSounds['blip']:play()
         end
-        
-        gSounds['blip']:stop()
-        gSounds['blip']:play()
-    elseif love.keyboard.wasPressed('down') then
-        if self.currentSelection == #self.items then
-            self.currentSelection = 1
-        else
-            self.currentSelection = self.currentSelection + 1
+    else
+        -- the only other type is display, run onselect if user presses enter or space (behaves similar to messages)
+        if love.keyboard.wasPressed('return') or love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('space') then
+            self.items[self.currentSelection].onSelect()
         end
-        
-        gSounds['blip']:stop()
-        gSounds['blip']:play()
-    elseif love.keyboard.wasPressed('return') or love.keyboard.wasPressed('enter') then
-        self.items[self.currentSelection].onSelect()
-        
-        gSounds['blip']:stop()
-        gSounds['blip']:play()
     end
 end
 
@@ -60,9 +72,12 @@ function Selection:render()
     for i = 1, #self.items do
         local paddedY = currentY + (self.gapHeight / 2) - self.font:getHeight() / 2
 
-        -- draw selection marker if we're at the right index
-        if i == self.currentSelection then
-            love.graphics.draw(gTextures['cursor'], self.x - 8, paddedY)
+        -- render the cursor only if the type is 'choice'
+        if self.type == 'choice' then
+            -- draw selection marker if we're at the right index
+            if i == self.currentSelection then
+                love.graphics.draw(gTextures['cursor'], self.x - 8, paddedY)
+            end
         end
 
         love.graphics.printf(self.items[i].text, self.x, paddedY, self.width, 'center')

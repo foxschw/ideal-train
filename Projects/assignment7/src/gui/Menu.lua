@@ -21,7 +21,8 @@ function Menu:init(def)
         y = def.y,
         width = def.width,
         height = def.height,
-        font = def.font
+        font = def.font,
+        type = def.type
     }
 end
 
