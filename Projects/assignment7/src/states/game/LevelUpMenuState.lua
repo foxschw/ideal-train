@@ -10,6 +10,7 @@ LevelUpMenuState = Class{__includes = BaseState}
 
 function LevelUpMenuState:init(battleState, HPIncrease, attackIncrease, defenseIncrease, speedIncrease)
     
+    -- pass in battleState which has most of the relevant info
     self.battleState = battleState
     
     -- subtract the increase value from the newly leveled up value to get what it was before the fight
@@ -29,6 +30,7 @@ function LevelUpMenuState:init(battleState, HPIncrease, attackIncrease, defenseI
         items = {
             {
                 text = ('HP: ' .. self.originalHP .. ' + ' .. HPIncrease .. ' = ' .. self.battleState.playerPokemon.HP),
+                -- trigger leaveMenu function if user presses enter or space
                 onSelect = function () self:leaveMenu() end
             },
             {
@@ -55,16 +57,16 @@ function LevelUpMenuState:render()
     self.levelUpMenu:render()
 end
 
+-- even though this won't be a selectable menu, I want to trigger a transition when the user presses enter
+-- I'm borrowing much of the functionality of TakeTurnState:fadeOutWhite() to make this happen
 function LevelUpMenuState:leaveMenu()
-
-
 
     -- fade in white
     gStateStack:push(FadeInState({
             r = 1, g = 1, b = 1
         }, 1,
         
-        -- pop message and battle state and add a fade to blend in the field
+        -- pop message, level up menu, and battle state and add a fade to blend in the field
         -- similar to TakeTurnState:fadeOutWhite() but we need to pop an extra state
         function()
             -- resume field music

@@ -22,17 +22,22 @@ function Selection:init(def)
     self.width = def.width
     self.font = def.font or gFonts['small']
 
-    self.gapHeight = self.height / #self.items
+    -- pass in the type, use 'choice' as default type
+    self.type = def.type or 'choice'
+
+    -- for display type menu, reduce the gapHeight slightly to fit better in the panel
+    if self.type == 'display' then
+        self.gapHeight = (self.height / #self.items) / 1.15
+    else
+        self.gapHeight = self.height / #self.items
+    end
 
     self.currentSelection = 1
-
-    -- pass in the type, use 'choice' as default
-    self.type = def.type or 'choice'
 
 end
 
 function Selection:update(dt)
-    -- run selection logic if the type is choice
+    -- run selection logic if the type is 'choice'
     if self.type == 'choice' then
         if love.keyboard.wasPressed('up') then
             if self.currentSelection == 1 then
@@ -59,7 +64,8 @@ function Selection:update(dt)
             gSounds['blip']:play()
         end
     else
-        -- the only other type is display, run onselect if user presses enter or space (behaves similar to messages)
+        -- the only other type is display, run onSelect if user presses enter or space 
+        -- (behaves similar to messages)
         if love.keyboard.wasPressed('return') or love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('space') then
             self.items[self.currentSelection].onSelect()
         end
@@ -72,7 +78,7 @@ function Selection:render()
     for i = 1, #self.items do
         local paddedY = currentY + (self.gapHeight / 2) - self.font:getHeight() / 2
 
-        -- render the cursor only if the type is 'choice'
+        -- only render the cursor if the type is 'choice'
         if self.type == 'choice' then
             -- draw selection marker if we're at the right index
             if i == self.currentSelection then

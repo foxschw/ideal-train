@@ -213,14 +213,14 @@ function TakeTurnState:victory()
                         -- set our exp to whatever the overlap is
                         self.playerPokemon.currentExp = self.playerPokemon.currentExp - self.playerPokemon.expToLevel
                         
-                        -- store increases inside variables
+                        -- store increases inside variables so that they can be passed into LevelUpMenuState
                         local HPIncrease, attackIncrease, defenseIncrease, speedIncrease = self.playerPokemon:levelUp()
 
                         gStateStack:push(BattleMessageState('Congratulations! Level Up!',
                         function() end, false))
                         -- wait 1.5 seconds after congrats message and display stats
                         Timer.after(1.5, function()
-                            -- push the level up stats menu state
+                            -- push the level up stats menu state, passing in increases
                             gStateStack:push(LevelUpMenuState(self.battleState, HPIncrease, attackIncrease, defenseIncrease, speedIncrease))
                         end)
                     else
