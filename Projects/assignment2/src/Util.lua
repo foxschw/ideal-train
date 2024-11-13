@@ -55,7 +55,17 @@ end
     we have to return a subset of GenerateQuads.
 ]]
 function GenerateQuadsBricks(atlas)
-    return table.slice(GenerateQuads(atlas, 32, 16), 1, 21)
+    -- slice out the standard brick quads (1 to 21)
+    local quads = table.slice(GenerateQuads(atlas, 32, 16), 1, 21)
+
+    -- coordinates for the locked brick
+    local lockedBrickX = 160
+    local lockedBrickY = 48
+
+    -- create and insert the locked brick quad, it will appear at index 22
+    table.insert(quads, love.graphics.newQuad(lockedBrickX, lockedBrickY, 32, 16, atlas:getDimensions()))
+
+    return quads
 end
 
 --[[
@@ -126,11 +136,15 @@ function GenerateQuadsBalls(atlas)
     return quads
 end
 
--- retrieve the sprite that has the plus symbol next to the ball
+-- retrieve the sprite that has the plus symbol next to the ball and the sprite with the key
 function GenerateQuadPowerup(atlas)
-    local x = 128
-    local y = 192
-    local quad = love.graphics.newQuad(x, y, 16, 16, atlas:getDimensions())
+    -- generate a table that holds the 2 different types of powerups
+    local powerups = {}
 
-    return quad
+    -- new quad for location at ball powerup
+    table.insert(powerups, love.graphics.newQuad(128, 192, 16, 16, atlas:getDimensions()))
+    -- new quad for location at key powerup
+    table.insert(powerups, love.graphics.newQuad(144, 192, 16, 16, atlas:getDimensions()))
+
+    return powerups
 end

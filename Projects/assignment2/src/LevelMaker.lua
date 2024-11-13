@@ -47,6 +47,9 @@ function LevelMaker.createMap(level)
     -- highest color of the highest tier, no higher than 5
     local highestColor = math.min(5, level % 5 + 3)
 
+    -- 50% chance to spawn locked bricks
+    local hasLockedBrick = math.random(1, 2) == 1
+
     -- lay out bricks such that they touch each other and fill the space
     for y = 1, numRows do
         -- whether we want to enable skipping for this row
@@ -95,22 +98,28 @@ function LevelMaker.createMap(level)
                 y * 16                  -- just use y * 16, since we need top padding anyway
             )
 
-            -- if we're alternating, figure out which color/tier we're on
-            if alternatePattern and alternateFlag then
-                b.color = alternateColor1
-                b.tier = alternateTier1
-                alternateFlag = not alternateFlag
+            -- occasionally set a brick to be locked (if locked bricks are allowed in this level)
+            -- 10% chance to make this brick locked
+            if hasLockedBrick and math.random(1, 10) == 1 then
+                b.locked = true
             else
-                b.color = alternateColor2
-                b.tier = alternateTier2
-                alternateFlag = not alternateFlag
-            end
+                -- if we're alternating, figure out which color/tier we're on
+                if alternatePattern and alternateFlag then
+                    b.color = alternateColor1
+                    b.tier = alternateTier1
+                    alternateFlag = not alternateFlag
+                else
+                    b.color = alternateColor2
+                    b.tier = alternateTier2
+                    alternateFlag = not alternateFlag
+                end
 
-            -- if not alternating and we made it here, use the solid color/tier
-            if not alternatePattern then
-                b.color = solidColor
-                b.tier = solidTier
-            end 
+                -- if not alternating and we made it here, use the solid color/tier
+                if not alternatePattern then
+                    b.color = solidColor
+                    b.tier = solidTier
+                end 
+            end
 
             table.insert(bricks, b)
 

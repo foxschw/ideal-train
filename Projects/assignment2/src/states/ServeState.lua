@@ -33,6 +33,10 @@ function ServeState:enter(params)
     ball.skin = math.random(7)
     -- insert to table
     table.insert(self.balls, ball)
+
+    -- reset the key (for breaking the locked brick) variable to false in the serve state
+    -- since the player is either just starting or has lost a life.
+    self.hasKey = false
 end
 
 function ServeState:update(dt)
@@ -56,6 +60,7 @@ function ServeState:update(dt)
             balls = self.balls,
             level = self.level,
             recoverPoints = self.recoverPoints,
+            hasKey = self.hasKey
         })
     end
 

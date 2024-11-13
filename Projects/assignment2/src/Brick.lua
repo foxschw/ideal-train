@@ -63,6 +63,9 @@ function Brick:init(x, y)
     -- used to determine whether this brick should be rendered
     self.inPlay = true
 
+    -- bricks by default are not locked but add a boolean variable for when the locked brick is introduced
+    self.locked = false
+
     -- particle system belonging to the brick, emitted on hit
     self.psystem = love.graphics.newParticleSystem(gTextures['particle'], 64)
 
@@ -84,7 +87,36 @@ end
     Triggers a hit on the brick, taking it out of play if at 0 health or
     changing its color otherwise.
 ]]
-function Brick:hit()
+function Brick:hit(hasKey)
+
+    -- if the brick is locked and the player doesn't have the key, do nothing
+    if self.locked and not hasKey then
+        return
+    end
+
+    -- if key is in play and the unlocked brick is hit
+    if self.locked and hasKey then
+        -- remove from play
+        self.inPlay = false
+    
+        -- emit gold particles when the locked brick is destroyed
+        self.psystem:setColors(
+            paletteColors[5].r / 255,
+            paletteColors[5].g / 255,
+            paletteColors[5].b / 255,
+            1,
+            paletteColors[5].r / 255,
+            paletteColors[5].g / 255,
+            paletteColors[5].b / 255,
+            0
+        )
+        self.psystem:emit(64)
+    
+        -- Play destruction sound
+        gSounds['brick-hit-1']:stop()
+        gSounds['brick-hit-1']:play()
+        return
+    end
 
     -- set the particle system to interpolate between two colors; in this case, we give
     -- it our self.color but with varying alpha; brighter for higher tiers, fading to 0
@@ -136,11 +168,16 @@ end
 
 function Brick:render()
     if self.inPlay then
-        love.graphics.draw(gTextures['main'], 
-            -- multiply color by 4 (-1) to get our color offset, then add tier to that
-            -- to draw the correct tier and color brick onto the screen
-            gFrames['bricks'][1 + ((self.color - 1) * 4) + self.tier],
-            self.x, self.y)
+        if self.locked then
+            -- locked brick is at index 22
+            love.graphics.draw(gTextures['main'], gFrames['bricks'][22], self.x, self.y)
+        else
+            love.graphics.draw(gTextures['main'], 
+                -- multiply color by 4 (-1) to get our color offset, then add tier to that
+                -- to draw the correct tier and color brick onto the screen
+                gFrames['bricks'][1 + ((self.color - 1) * 4) + self.tier],
+                self.x, self.y)
+        end
     end
 end
 

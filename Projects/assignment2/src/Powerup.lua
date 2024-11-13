@@ -1,11 +1,12 @@
 Powerup = Class{}
 
--- sprite is located at x=144, y=192
-
-function Powerup:init()
+function Powerup:init(type)
     -- simple positional and dimensional variables
     self.width = 16
     self.height = 16
+
+    -- determine a variable for ball powerup or key powerup
+    self.type = type
 
     -- x is placed randomly within the a 16 px buffer of the width
     self.x = math.random(16, VIRTUAL_WIDTH - 32)
@@ -45,5 +46,8 @@ function Powerup:update(dt)
 end
 
 function Powerup:render()
-    love.graphics.draw(gTextures['main'], gFrames['powerups'], self.x, self.y)
+    -- Index into the powerups table created in util.lua
+    -- 1 is for ball, 2 is for key
+    local spriteIndex = self.type == 2 and 2 or 1
+    love.graphics.draw(gTextures['main'], gFrames['powerups'][spriteIndex], self.x, self.y)
 end
