@@ -12,6 +12,7 @@ Fox Schwach
 ## Make sure you mention what files your grader should examine, and even better, what line(s) of code you modified.
 
 1. Create public variables in LevelGenerator for max amount of holes per level, the probability for hole creation, and a counter for holes created. The counter could be private, but it's nice to have a quick way to make sure your probability is working out as you want. The other ones are good for tweaking the adjustments. Create an if condition around the code that creates the floor tiles. If we're in a hall (mapData x and y are false) and we haven't exceeded our max hole count and we're within the probability, don't create the floor, just increment the hole counter. Otherwise create the floor as usual.
+2. Copy the Title Scene and format it for Game Over. Add the scene to the Build Settings. Adjust the LoadSceneOnInput script such that it checks which scene is active and routes accordingly (to play if current scene is title, and to title if current scene is game over). Write the DespawnOnHeight script and add it to FPS Controller. 
 
 ## How would you rate your own design? Place an X in one of the set of brackets below. (Your answer will not have an impact on how the staff scores your design)
 
