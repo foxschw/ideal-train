@@ -41,6 +41,9 @@ public class LevelGenerator : MonoBehaviour {
 
 	// chance for there to be a hole in the ground
 	public float holeProbability = 0.01f;
+	
+	// variable to track whether coin has been picked up
+	public static bool coinPickedUp = false;
 
 	// Use this for initialization
 	void Start () {
@@ -67,10 +70,11 @@ public class LevelGenerator : MonoBehaviour {
 				}
 
 				// create floor and ceiling
-				// create chance for floor to not be created
-				// if we're in the path and there hasn't been more than 3 holes
+				// create chance for floor to not be created:
+				// if we're in the path and the max hole count hasn't been exceeded 
+				// and we're inside the probability range
 				if (!mapData[z, x] && holeCount < maxHoleAmount && Random.value < holeProbability) {
-					// don't create floor, increment holeCounter
+					// don't create floor, increment holeCounter since a hole has been created
 					holeCount ++;
 				} else {
 					// if conditions aren't met, create the floor as usual
@@ -88,6 +92,8 @@ public class LevelGenerator : MonoBehaviour {
 		// spawn the pickup at the end
 		var myPickup = Instantiate(pickup, new Vector3(mazeX, 1, mazeY), Quaternion.identity);
 		myPickup.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+		// new coin generated, reset this bool to false
+		coinPickedUp = false;
 	}
 
 	// generates the booleans determining the maze, which will be used to construct the cubes

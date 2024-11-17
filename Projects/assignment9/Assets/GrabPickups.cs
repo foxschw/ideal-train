@@ -15,8 +15,12 @@ public class GrabPickups : MonoBehaviour {
 	}
 
 	void OnControllerColliderHit(ControllerColliderHit hit) {
-		if (hit.gameObject.tag == "Pickup") {
+		// ensure coin hasn't been picked up already
+		if (hit.gameObject.tag == "Pickup" && LevelGenerator.coinPickedUp == false) {
+			// set boolean to true to prevent multiple pickups
+			LevelGenerator.coinPickedUp = true;
 			pickupSoundSource.Play();
+			// increment current level
 			currentLevel++;
 			SceneManager.LoadScene("Play");
 		}

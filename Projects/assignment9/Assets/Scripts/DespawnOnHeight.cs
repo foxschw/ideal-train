@@ -17,7 +17,7 @@ public class DespawnOnHeight : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        // if character drops below zero on Y axis, destroy the scene audio and launch Game Over scene
+        // if character drops below zero on Y axis, launch Game Over scene
         if (characterController.transform.position.y < 0) {
             SceneManager.LoadScene("GameOver");
         }
